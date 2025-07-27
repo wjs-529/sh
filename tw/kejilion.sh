@@ -140,7 +140,27 @@ CheckFirstRun_false
 
 ip_address() {
 
-ipv4_address=$(curl -s https://ipinfo.io/ip && echo)
+get_public_ip() {
+	curl -s https://ipinfo.io/ip && echo
+}
+
+get_local_ip() {
+	ip route get 8.8.8.8 2>/dev/null | grep -oP 'src \K[^ ]+' || \
+	hostname -I 2>/dev/null | awk '{print $1}' || \
+	ifconfig 2>/dev/null | grep -E 'inet [0-9]' | grep -v '127.0.0.1' | awk '{print $2}' | head -n1
+}
+
+public_ip=$(get_public_ip)
+isp_info=$(curl -s --max-time 3 http://ipinfo.io/org)
+
+
+if echo "$isp_info" | grep -iq 'china'; then
+  ipv4_address=$(get_local_ip)
+else
+  ipv4_address="$public_ip"
+fi
+
+# ipv4_address=$(curl -s https://ipinfo.io/ip && echo)
 ipv6_address=$(curl -s --max-time 1 https://v6.ipinfo.io/ip && echo)
 
 }
@@ -2343,6 +2363,9 @@ check_docker_app_ip() {
 echo "------------------------"
 echo "訪問地址:"
 ip_address
+
+
+
 if [ -n "$ipv4_address" ]; then
 	echo "http://$ipv4_address:${docker_port}"
 fi
