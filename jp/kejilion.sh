@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.0.3"
+sh_v="4.0.4"
 
 
 gl_hui='\e[37m'
@@ -2751,6 +2751,8 @@ while true; do
 			docker_rum
 			setup_docker_dir
 			echo "$docker_port" > "/home/docker/${docker_name}_port.conf"
+			local app_no=$sub_choice
+			grep -qxF "${app_no}" /home/docker/appno.txt || echo "${app_no}" >> /home/docker/appno.txt
 
 			clear
 			echo "$docker_nameインストール"
@@ -2764,6 +2766,9 @@ while true; do
 			docker rm -f "$docker_name"
 			docker rmi -f "$docker_img"
 			docker_rum
+			local app_no=$sub_choice
+			grep -qxF "${app_no}" /home/docker/appno.txt || echo "${app_no}" >> /home/docker/appno.txt
+
 			clear
 			echo "$docker_nameインストール"
 			check_docker_app_ip
@@ -2777,6 +2782,8 @@ while true; do
 			docker rmi -f "$docker_img"
 			rm -rf "/home/docker/$docker_name"
 			rm -f /home/docker/${docker_name}_port.conf
+			local app_no=$sub_choice
+			sed -i "/\b${app_no}\b/d" /home/docker/appno.txt
 			echo "アプリはアンインストールされています"
 			send_stats "アンインストール$docker_name"
 			;;
@@ -2812,7 +2819,6 @@ while true; do
 done
 
 }
-
 
 
 
@@ -2857,13 +2863,20 @@ docker_app_plus() {
 				docker_app_install
 				setup_docker_dir
 				echo "$docker_port" > "/home/docker/${docker_name}_port.conf"
+				local app_no=$sub_choice
+				grep -qxF "${app_no}" /home/docker/appno.txt || echo "${app_no}" >> /home/docker/appno.txt
 				;;
 			2)
 				docker_app_update
+				local app_no=$sub_choice
+				grep -qxF "${app_no}" /home/docker/appno.txt || echo "${app_no}" >> /home/docker/appno.txt
 				;;
 			3)
 				docker_app_uninstall
 				rm -f /home/docker/${docker_name}_port.conf
+				local app_no=$sub_choice
+				sed -i "/\b${app_no}\b/d" /home/docker/appno.txt
+
 				;;
 			5)
 				echo "${docker_name}ドメインアクセス設定"
@@ -3538,15 +3551,21 @@ while true; do
 			install wget
 			iptables_open
 			panel_app_install
+			local app_no=$sub_choice
+			grep -qxF "${app_no}" /home/docker/appno.txt || echo "${app_no}" >> /home/docker/appno.txt
 			send_stats "${panelname}インストール"
 			;;
 		2)
 			panel_app_manage
+			local app_no=$sub_choice
+			grep -qxF "${app_no}" /home/docker/appno.txt || echo "${app_no}" >> /home/docker/appno.txt
 			send_stats "${panelname}コントロール"
 
 			;;
 		3)
 			panel_app_uninstall
+			local app_no=$sub_choice
+			sed -i "/\b${app_no}\b/d" /home/docker/appno.txt
 			send_stats "${panelname}アンインストール"
 			;;
 		*)
@@ -3875,6 +3894,8 @@ frps_panel() {
 				install jq grep ss
 				install_docker
 				generate_frps_config
+				local app_no=$sub_choice
+				grep -qxF "${app_no}" /home/docker/appno.txt || echo "${app_no}" >> /home/docker/appno.txt
 				echo "FRPサーバーがインストールされています"
 				;;
 			2)
@@ -3883,6 +3904,8 @@ frps_panel() {
 				docker rm -f frps && docker rmi kjlion/frp:alpine >/dev/null 2>&1
 				[ -f /home/frp/frps.toml ] || cp /home/frp/frp_0.61.0_linux_amd64/frps.toml /home/frp/frps.toml
 				donlond_frp frps
+				local app_no=$sub_choice
+				grep -qxF "${app_no}" /home/docker/appno.txt || echo "${app_no}" >> /home/docker/appno.txt
 				echo "FRPサーバーが更新されました"
 				;;
 			3)
@@ -3892,7 +3915,8 @@ frps_panel() {
 				rm -rf /home/frp
 
 				close_port 8055 8056
-
+				local app_no=$sub_choice
+				sed -i "/\b${app_no}\b/d" /home/docker/appno.txt
 				echo "アプリはアンインストールされています"
 				;;
 			5)
@@ -3966,6 +3990,8 @@ frpc_panel() {
 				install jq grep ss
 				install_docker
 				configure_frpc
+				local app_no=$sub_choice
+				grep -qxF "${app_no}" /home/docker/appno.txt || echo "${app_no}" >> /home/docker/appno.txt
 				echo "FRPクライアントがインストールされています"
 				;;
 			2)
@@ -3974,6 +4000,8 @@ frpc_panel() {
 				docker rm -f frpc && docker rmi kjlion/frp:alpine >/dev/null 2>&1
 				[ -f /home/frp/frpc.toml ] || cp /home/frp/frp_0.61.0_linux_amd64/frpc.toml /home/frp/frpc.toml
 				donlond_frp frpc
+				local app_no=$sub_choice
+				grep -qxF "${app_no}" /home/docker/appno.txt || echo "${app_no}" >> /home/docker/appno.txt
 				echo "FRPクライアントが更新されました"
 				;;
 
@@ -3983,6 +4011,8 @@ frpc_panel() {
 				docker rm -f frpc && docker rmi kjlion/frp:alpine
 				rm -rf /home/frp
 				close_port 8055
+				local app_no=$sub_choice
+				sed -i "/\b${app_no}\b/d" /home/docker/appno.txt
 				echo "アプリはアンインストールされています"
 				;;
 
@@ -5183,7 +5213,7 @@ optimize_high_performance() {
 	echo -e "${gl_lv}その他の最適化...${gl_bai}"
 	# レイテンシを減らすために、大きな透明なページを無効にします
 	echo never > /sys/kernel/mm/transparent_hugepage/enabled
-	# 禁用 NUMA balancing
+	# numaバランスを無効にします
 	sysctl -w kernel.numa_balancing=0 2>/dev/null
 
 
@@ -5598,7 +5628,7 @@ linux_trash() {
 		fi
 		;;
 	  4)
-		read -e -p "リサイクルビンをクリアすることを確認しますか？ [Y/N]：" confirm
+		read -e -p "确认清空回收站？[y/n]: " confirm
 		if [[ "$confirm" == "y" ]]; then
 		  trash-empty
 		  echo "リサイクルビンがクリアされました。"
@@ -7644,7 +7674,7 @@ linux_ldnmp() {
 	  echo "Redisポート：6379"
 	  echo ""
 	  echo "ウェブサイトURL：https：//$yuming"
-	  echo "バックグラウンドログインパス： /admin"
+	  echo "バックエンドログインパス： /admin"
 	  echo "------------------------"
 	  echo "ユーザー名：admin"
 	  echo "パスワード：管理者"
@@ -8411,58 +8441,73 @@ linux_ldnmp() {
 
 linux_panel() {
 
+
+
+
+
 	while true; do
 	  clear
-	  # send_stats「アプリマーケット」
 	  echo -e "アプリケーション市場"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}1.   ${gl_bai}Baotaパネルの公式バージョン${gl_kjlan}2.   ${gl_bai}Aapanel International Edition"
-	  echo -e "${gl_kjlan}3.   ${gl_bai}1パネルの新世代管理パネル${gl_kjlan}4.   ${gl_bai}nginxproxymanagerビジュアルパネル"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}OpenListマルチストアファイルリストプログラム${gl_kjlan}6.   ${gl_bai}UbuntuリモートデスクトップWebエディション"
-	  echo -e "${gl_kjlan}7.   ${gl_bai}Nezha Probe VPS監視パネル${gl_kjlan}8.   ${gl_bai}QBオフラインBT磁気ダウンロードパネル"
-	  echo -e "${gl_kjlan}9.   ${gl_bai}poste.ioメールサーバープログラム${gl_kjlan}10.  ${gl_bai}Rocketchatマルチプレイヤーオンラインチャットシステム"
+
+	  local app_numbers=$([ -f /home/docker/appno.txt ] && cat /home/docker/appno.txt || echo "")
+
+	  # ループで色を設定します
+	  for i in {1..100}; do
+		  if echo "$app_numbers" | grep -q "^$i$"; then
+			  declare "color$i=${gl_lv}"
+		  else
+			  declare "color$i=${gl_bai}"
+		  fi
+	  done
+
+	  echo -e "${gl_kjlan}1.   ${color1}Baotaパネルの公式バージョン${gl_kjlan}2.   ${color2}Aapanel International Edition"
+	  echo -e "${gl_kjlan}3.   ${color3}1パネルの新世代管理パネル${gl_kjlan}4.   ${color4}nginxproxymanagerビジュアルパネル"
+	  echo -e "${gl_kjlan}5.   ${color5}OpenListマルチストアファイルリストプログラム${gl_kjlan}6.   ${color6}UbuntuリモートデスクトップWebエディション"
+	  echo -e "${gl_kjlan}7.   ${color7}Nezha Probe VPS監視パネル${gl_kjlan}8.   ${color8}QBオフラインBT磁気ダウンロードパネル"
+	  echo -e "${gl_kjlan}9.   ${color9}poste.ioメールサーバープログラム${gl_kjlan}10.  ${color10}Rocketchatマルチプレイヤーオンラインチャットシステム"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}11.  ${gl_bai}Zendaoプロジェクト管理ソフトウェア${gl_kjlan}12.  ${gl_bai}Qinglongパネルの時限タスク管理プラットフォーム"
-	  echo -e "${gl_kjlan}13.  ${gl_bai}CloudReveネットワークディスク${gl_huang}★${gl_bai}                     ${gl_kjlan}14.  ${gl_bai}シンプルな写真ベッド画像管理プログラム"
-	  echo -e "${gl_kjlan}15.  ${gl_bai}Emby Multimedia Management System${gl_kjlan}16.  ${gl_bai}SpeedTest速度テストパネル"
-	  echo -e "${gl_kjlan}17.  ${gl_bai}AdGuardhomeアドウェア${gl_kjlan}18.  ${gl_bai}唯一のオフィスオンラインオフィスオフィス"
-	  echo -e "${gl_kjlan}19.  ${gl_bai}サンダープールWAFファイアウォールパネル${gl_kjlan}20.  ${gl_bai}Portainerコンテナ管理パネル"
+	  echo -e "${gl_kjlan}11.  ${color11}Zendaoプロジェクト管理ソフトウェア${gl_kjlan}12.  ${color12}Qinglongパネルの時限タスク管理プラットフォーム"
+	  echo -e "${gl_kjlan}13.  ${color13}CloudReveネットワークディスク${gl_huang}★${gl_bai}                     ${gl_kjlan}14.  ${color14}シンプルな写真ベッド画像管理プログラム"
+	  echo -e "${gl_kjlan}15.  ${color15}Emby Multimedia Management System${gl_kjlan}16.  ${color16}SpeedTest速度テストパネル"
+	  echo -e "${gl_kjlan}17.  ${color17}AdGuardhomeアドウェア${gl_kjlan}18.  ${color18}唯一のオフィスオンラインオフィスオフィス"
+	  echo -e "${gl_kjlan}19.  ${color19}サンダープールWAFファイアウォールパネル${gl_kjlan}20.  ${color20}Portainerコンテナ管理パネル"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}21.  ${gl_bai}vscode webバージョン${gl_kjlan}22.  ${gl_bai}UptimeKuma監視ツール"
-	  echo -e "${gl_kjlan}23.  ${gl_bai}メモWebページメモ${gl_kjlan}24.  ${gl_bai}webtopリモートデスクトップWebエディション${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}25.  ${gl_bai}NextCloudネットワークディスク${gl_kjlan}26.  ${gl_bai}QD-Todayタイミングタスク管理フレームワーク"
-	  echo -e "${gl_kjlan}27.  ${gl_bai}Dockge Container Stack Managementパネル${gl_kjlan}28.  ${gl_bai}librespeed速度テストツール"
-	  echo -e "${gl_kjlan}29.  ${gl_bai}searxng集約検索サイト${gl_huang}★${gl_bai}                 ${gl_kjlan}30.  ${gl_bai}フォトプリズムプライベートアルバムシステム"
+	  echo -e "${gl_kjlan}21.  ${color21}vscode webバージョン${gl_kjlan}22.  ${color22}UptimeKuma監視ツール"
+	  echo -e "${gl_kjlan}23.  ${color23}メモWebページメモ${gl_kjlan}24.  ${color24}webtopリモートデスクトップWebエディション${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}25.  ${color25}NextCloudネットワークディスク${gl_kjlan}26.  ${color26}QD-Todayタイミングタスク管理フレームワーク"
+	  echo -e "${gl_kjlan}27.  ${color27}Dockge Container Stack Managementパネル${gl_kjlan}28.  ${color28}librespeed速度テストツール"
+	  echo -e "${gl_kjlan}29.  ${color29}searxng集約検索サイト${gl_huang}★${gl_bai}                 ${gl_kjlan}30.  ${color30}フォトプリズムプライベートアルバムシステム"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}31.  ${gl_bai}StirlingPDFツールコレクション${gl_kjlan}32.  ${gl_bai}Drawio無料のオンラインチャートソフトウェア${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}33.  ${gl_bai}サンパネルナビゲーションパネル${gl_kjlan}34.  ${gl_bai}Pingvin-Shareファイル共有プラットフォーム"
-	  echo -e "${gl_kjlan}35.  ${gl_bai}友達のミニマリストのサークル${gl_kjlan}36.  ${gl_bai}Lobechataiチャット集約Webサイト"
-	  echo -e "${gl_kjlan}37.  ${gl_bai}MyIPツールボックス${gl_huang}★${gl_bai}                        ${gl_kjlan}38.  ${gl_bai}Xiaoya alistファミリーバケット"
-	  echo -e "${gl_kjlan}39.  ${gl_bai}Bililive Live Broadcast Recording Tool${gl_kjlan}40.  ${gl_bai}WebSH WebバージョンSSH接続ツール"
+	  echo -e "${gl_kjlan}31.  ${color31}StirlingPDFツールコレクション${gl_kjlan}32.  ${color32}Drawio無料のオンラインチャートソフトウェア${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}33.  ${color33}サンパネルナビゲーションパネル${gl_kjlan}34.  ${color34}Pingvin-Shareファイル共有プラットフォーム"
+	  echo -e "${gl_kjlan}35.  ${color35}友達のミニマリストのサークル${gl_kjlan}36.  ${color36}Lobechataiチャット集約Webサイト"
+	  echo -e "${gl_kjlan}37.  ${color37}MyIPツールボックス${gl_huang}★${gl_bai}                        ${gl_kjlan}38.  ${color38}Xiaoya alistファミリーバケット"
+	  echo -e "${gl_kjlan}39.  ${color39}Bililive Live Broadcast Recording Tool${gl_kjlan}40.  ${color40}WebSH WebバージョンSSH接続ツール"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}41.  ${gl_bai}マウス管理パネル${gl_kjlan}42.  ${gl_bai}NEXTEリモート接続ツール"
-	  echo -e "${gl_kjlan}43.  ${gl_bai}Rustdeskリモートデスク（サーバー）${gl_huang}★${gl_bai}          ${gl_kjlan}44.  ${gl_bai}Rustdeskリモートデスク（リレー）${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}45.  ${gl_bai}Docker加速ステーション${gl_kjlan}46.  ${gl_bai}GitHubアクセラレーションステーション${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}47.  ${gl_bai}プロメテウス監視${gl_kjlan}48.  ${gl_bai}プロメテウス（ホスト監視）"
-	  echo -e "${gl_kjlan}49.  ${gl_bai}プロメテウス（コンテナ監視）${gl_kjlan}50.  ${gl_bai}補充監視ツール"
+	  echo -e "${gl_kjlan}41.  ${color41}マウス管理パネル${gl_kjlan}42.  ${color42}NEXTEリモート接続ツール"
+	  echo -e "${gl_kjlan}43.  ${color43}Rustdeskリモートデスク（サーバー）${gl_huang}★${gl_bai}          ${gl_kjlan}44.  ${color44}Rustdeskリモートデスク（リレー）${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}45.  ${color45}Docker加速ステーション${gl_kjlan}46.  ${color46}GitHubアクセラレーションステーション${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}47.  ${color47}プロメテウス監視${gl_kjlan}48.  ${color48}プロメテウス（ホスト監視）"
+	  echo -e "${gl_kjlan}49.  ${color49}プロメテウス（コンテナ監視）${gl_kjlan}50.  ${color50}補充監視ツール"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}51.  ${gl_bai}PVEチキンパネル${gl_kjlan}52.  ${gl_bai}dPanelコンテナ管理パネル"
-	  echo -e "${gl_kjlan}53.  ${gl_bai}llama3チャットAIモデル${gl_kjlan}54.  ${gl_bai}AMHホストWebサイトビルディングマネジメントパネル"
-	  echo -e "${gl_kjlan}55.  ${gl_bai}FRPイントラネット浸透（サーバー側）${gl_huang}★${gl_bai}	         ${gl_kjlan}56.  ${gl_bai}FRPイントラネット浸透（クライアント）${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}57.  ${gl_bai}deepseekチャットaiビッグモデル${gl_kjlan}58.  ${gl_bai}Dify Big Model Knowledge Base${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}59.  ${gl_bai}Newapi Big Model Asset Management${gl_kjlan}60.  ${gl_bai}Jumpserverオープンソースバス剤マシン"
+	  echo -e "${gl_kjlan}51.  ${color51}PVEチキンパネル${gl_kjlan}52.  ${color52}dPanelコンテナ管理パネル"
+	  echo -e "${gl_kjlan}53.  ${color53}llama3チャットAIモデル${gl_kjlan}54.  ${color54}AMHホストWebサイトビルディングマネジメントパネル"
+	  echo -e "${gl_kjlan}55.  ${color55}FRPイントラネット浸透（サーバー側）${gl_huang}★${gl_bai}	         ${gl_kjlan}56.  ${color56}FRPイントラネット浸透（クライアント）${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}57.  ${color57}deepseekチャットaiビッグモデル${gl_kjlan}58.  ${color58}Dify Big Model Knowledge Base${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}59.  ${color59}Newapi Big Model Asset Management${gl_kjlan}60.  ${color60}Jumpserverオープンソースバス剤マシン"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}61.  ${gl_bai}オンライン翻訳サーバー${gl_kjlan}62.  ${gl_bai}Ragflow Big Model Knowledge Base"
-	  echo -e "${gl_kjlan}63.  ${gl_bai}OpenWebui自己ホストAIプラットフォーム${gl_huang}★${gl_bai}             ${gl_kjlan}64.  ${gl_bai}IT-Toolsツールボックス"
-	  echo -e "${gl_kjlan}65.  ${gl_bai}N8Nオートメーションワークフロープラットフォーム${gl_huang}★${gl_bai}               ${gl_kjlan}66.  ${gl_bai}YT-DLPビデオダウンロードツール"
-	  echo -e "${gl_kjlan}67.  ${gl_bai}DDNS-GOダイナミックDNS管理ツール${gl_huang}★${gl_bai}            ${gl_kjlan}68.  ${gl_bai}AllinsSL証明書管理プラットフォーム"
-	  echo -e "${gl_kjlan}69.  ${gl_bai}SFTPGOファイル転送ツール${gl_kjlan}70.  ${gl_bai}アストロボットチャットロボットフレームワーク"
+	  echo -e "${gl_kjlan}61.  ${color61}オンライン翻訳サーバー${gl_kjlan}62.  ${color62}Ragflow Big Model Knowledge Base"
+	  echo -e "${gl_kjlan}63.  ${color63}OpenWebui自己ホストAIプラットフォーム${gl_huang}★${gl_bai}             ${gl_kjlan}64.  ${color64}IT-Toolsツールボックス"
+	  echo -e "${gl_kjlan}65.  ${color65}N8Nオートメーションワークフロープラットフォーム${gl_huang}★${gl_bai}               ${gl_kjlan}66.  ${color66}YT-DLPビデオダウンロードツール"
+	  echo -e "${gl_kjlan}67.  ${color67}DDNS-GOダイナミックDNS管理ツール${gl_huang}★${gl_bai}            ${gl_kjlan}68.  ${color68}AllinsSL証明書管理プラットフォーム"
+	  echo -e "${gl_kjlan}69.  ${color69}SFTPGOファイル転送ツール${gl_kjlan}70.  ${color70}アストロボットチャットロボットフレームワーク"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}71.  ${gl_bai}Navidromeプライベートミュージックサーバー${gl_kjlan}72.  ${gl_bai}Bitwardenパスワードマネージャー${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}73.  ${gl_bai}libretvプライベート映画とテレビ${gl_kjlan}74.  ${gl_bai}MOONTVプライベート映画"
-	  echo -e "${gl_kjlan}75.  ${gl_bai}メロディーミュージックエルフ${gl_kjlan}76.  ${gl_bai}オンラインDOS古いゲーム"
-	  echo -e "${gl_kjlan}77.  ${gl_bai}サンダーオフラインダウンロードツール${gl_kjlan}78.  ${gl_bai}Pandawikiインテリジェントドキュメント管理システム"
-	  echo -e "${gl_kjlan}79.  ${gl_bai}Beszelサーバーの監視"
+	  echo -e "${gl_kjlan}71.  ${color71}Navidromeプライベートミュージックサーバー${gl_kjlan}72.  ${color72}Bitwardenパスワードマネージャー${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}73.  ${color73}libretvプライベート映画とテレビ${gl_kjlan}74.  ${color74}MOONTVプライベート映画"
+	  echo -e "${gl_kjlan}75.  ${color75}メロディーミュージックエルフ${gl_kjlan}76.  ${color76}オンラインDOS古いゲーム"
+	  echo -e "${gl_kjlan}77.  ${color77}サンダーオフラインダウンロードツール${gl_kjlan}78.  ${color78}Pandawikiインテリジェントドキュメント管理システム"
+	  echo -e "${gl_kjlan}79.  ${color79}Beszelサーバーの監視"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}メインメニューに戻ります"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -10846,7 +10891,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}21.  ${gl_bai}ネイティブホストの解析${gl_kjlan}22.  ${gl_bai}SSH防衛プログラム"
 	  echo -e "${gl_kjlan}23.  ${gl_bai}電流制限の自動シャットダウン${gl_kjlan}24.  ${gl_bai}ルート秘密キーログインモード"
-	  echo -e "${gl_kjlan}25.  ${gl_bai}TGボットシステムの監視と早期警告${gl_kjlan}26.  ${gl_bai}opensshの高リスクの脆弱性（xiuyuan）を修正"
+	  echo -e "${gl_kjlan}25.  ${gl_bai}TGボットシステムの監視と早期警告${gl_kjlan}26.  ${gl_bai}OpenSSHの高リスクの脆弱性を修正します"
 	  echo -e "${gl_kjlan}27.  ${gl_bai}Red Hat Linuxカーネルのアップグレード${gl_kjlan}28.  ${gl_bai}Linuxシステムにおけるカーネルパラメーターの最適化${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}29.  ${gl_bai}ウイルススキャンツール${gl_huang}★${gl_bai}                     ${gl_kjlan}30.  ${gl_bai}ファイルマネージャー"
 	  echo -e "${gl_kjlan}------------------------"
@@ -10854,6 +10899,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}33.  ${gl_bai}システムリサイクルビンをセットアップします${gl_kjlan}34.  ${gl_bai}システムのバックアップと回復"
 	  echo -e "${gl_kjlan}35.  ${gl_bai}SSHリモート接続ツール${gl_kjlan}36.  ${gl_bai}ハードディスクパーティション管理ツール"
 	  echo -e "${gl_kjlan}37.  ${gl_bai}コマンドラインの履歴${gl_kjlan}38.  ${gl_bai}RSYNCリモート同期ツール"
+	  echo -e "${gl_kjlan}39.  ${gl_bai}コマンドのお気に入り${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}41.  ${gl_bai}メッセージボード${gl_kjlan}66.  ${gl_bai}ワンストップシステムの最適化${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}サーバーを再起動します${gl_kjlan}100. ${gl_bai}プライバシーとセキュリティ"
@@ -11324,7 +11370,7 @@ EOF
 				echo "23。カナダ時間24。メキシコの時間"
 				echo "25。ブラジル時間26。アルゼンチン時間"
 				echo "------------------------"
-				echo "31。UTCグローバル標準時間"
+				echo "31. UTC全球标准时间"
 				echo "------------------------"
 				echo "0。前のメニューに戻ります"
 				echo "------------------------"
@@ -11853,6 +11899,12 @@ EOF
 			  ;;
 
 
+		  39)
+			  clear
+			  send_stats "コマンドラインの履歴"
+			  bash <(curl -l -s ${gh_proxy}raw.githubusercontent.com/byJoey/cmdbox/refs/heads/main/install.sh)
+			  ;;
+
 		  41)
 			clear
 			send_stats "メッセージボード"
@@ -12323,7 +12375,7 @@ while true; do
 	  echo -e "${gl_kjlan}バッチでタスクを実行します${gl_bai}"
 	  echo -e "${gl_kjlan}11. ${gl_bai}Tech Lionスクリプトをインストールします${gl_kjlan}12. ${gl_bai}システムを更新します${gl_kjlan}13. ${gl_bai}システムを掃除します"
 	  echo -e "${gl_kjlan}14. ${gl_bai}Dockerをインストールします${gl_kjlan}15. ${gl_bai}BBR3をインストールします${gl_kjlan}16. ${gl_bai}1G仮想メモリをセットアップします"
-	  echo -e "${gl_kjlan}17. ${gl_bai}タイムゾーンを上海に設定します${gl_kjlan}18. ${gl_bai}すべてのポートを開きます${gl_kjlan}51. ${gl_bai}カスタムコマンド"
+	  echo -e "${gl_kjlan}17. ${gl_bai}タイムゾーンを上海に設定します${gl_kjlan}18. ${gl_bai}すべてのポートを開きます${gl_kjlan}51. ${gl_bai}自定义指令"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  echo -e "${gl_kjlan}0.  ${gl_bai}メインメニューに戻ります"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -12331,8 +12383,8 @@ while true; do
 
 	  case $sub_choice in
 		  1)
-			  send_stats "クラスターサーバーを追加します"
-			  read -e -p "サーバー名：" server_name
+			  send_stats "添加集群服务器"
+			  read -e -p "服务器名称: " server_name
 			  read -e -p "サーバーIP：" server_ip
 			  read -e -p "サーバーポート（22）：" server_port
 			  local server_port=${server_port:-22}
@@ -12434,7 +12486,7 @@ echo "------------------------"
 echo -e "${gl_huang}ブリックワーカー、四半期あたり49ドル、米国CN2GIA、日本ソフトバンク、2つのコア、1Gメモリ、20gハードドライブ、1か月あたり1Tトラフィック${gl_bai}"
 echo -e "${gl_bai}ウェブサイト：https：//bandwagonhost.com/aff.php?aff = 69004&pid=87${gl_bai}"
 echo "------------------------"
-echo -e "${gl_lan}dmit四半期あたり28ドルUS CN2GIA 1コア2Gメモリ20Gハードドライブ800gトラフィック${gl_bai}"
+echo -e "${gl_lan}DMIT 28刀每季 美国CN2GIA 1核心 2G内存 20G硬盘 800G流量每月${gl_bai}"
 echo -e "${gl_bai}ウェブサイト：https：//www.dmit.io/aff.php?aff = 4966&pid=100${gl_bai}"
 echo "------------------------"
 echo -e "${gl_zi}V.PS月額6.9 $ 6.9東京ソフトバンク2コア1Gメモリ20gハードドライブ1Tトラフィック${gl_bai}"
@@ -12473,7 +12525,7 @@ while true; do
 	clear
 	echo "ログを更新します"
 	echo "------------------------"
-	echo "すべてのログ：${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt"
+	echo "全部日志: ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt"
 	echo "------------------------"
 
 	curl -s ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt | tail -n 30
