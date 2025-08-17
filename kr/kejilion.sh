@@ -315,7 +315,7 @@ status() {
 	if [ $? -eq 0 ]; then
 		echo "$1서비스 상태가 표시됩니다."
 	else
-		echo "错误：无法显示 $1서비스 상태."
+		echo "오류 : 표시 할 수 없습니다$1서비스 상태."
 	fi
 }
 
@@ -1531,7 +1531,7 @@ certs_status() {
 		echo -e "1. 도메인 이름 철자 오류 ➠ 도메인 이름이 올바르게 입력되었는지 확인하십시오."
 		echo -e "2. DNS 해상도 문제 ➠ 도메인 이름 이이 서버 IP로 올바르게 해결되었는지 확인합니다."
 		echo -e "3. 네트워크 구성 문제 ➠ CloudFlare Warp 및 기타 가상 네트워크를 사용하는 경우 임시로 종료하십시오."
-		echo -e "4. 방화벽 제한 ➠ 검증에 액세스 할 수 있도록 포트 80/443이 열려 있는지 확인"
+		echo -e "4. 防火墙限制 ➠ 检查80/443端口是否开放，确保验证可访问"
 		echo -e "5. 응용 프로그램 수는 한계를 초과합니다. ➠ 암호화하자는 주간 제한 (5 배/도메인 이름/주)을 갖습니다."
 		echo -e "6. 국내 등록 제한 ➠ 도메인 이름이 중국 본토에 등록되어 있는지 확인하십시오."
 		break_end
@@ -1662,7 +1662,7 @@ cf_purge_cache() {
 	# Zone_ids를 배열로 변환합니다
 	ZONE_IDS=($ZONE_IDS)
   else
-	# 캐시 청소 여부를 사용자에게 프롬프트하십시오
+	# 캐시 청소 여부를 사용자에게 프롬프트합니다
 	read -e -p "CloudFlare의 캐시를 청소해야합니까? (Y/N) :" answer
 	if [[ "$answer" == "y" ]]; then
 	  echo "CF 정보가 저장됩니다$CONFIG_FILE, 나중에 CF 정보를 수정할 수 있습니다"
@@ -4973,7 +4973,7 @@ elrepo_install() {
 		linux_Settings
 	fi
 	# 감지 된 운영 체제 정보를 인쇄합니다
-	echo "감지 된 운영 체제 :$os_name $os_version"
+	echo "운영 체제 감지 :$os_name $os_version"
 	# 시스템 버전에 따라 해당 Elrepo 창고 구성을 설치하십시오.
 	if [[ "$os_version" == 8 ]]; then
 		echo "Elrepo 저장소 구성 (버전 8)을 설치하십시오 ..."
@@ -7674,7 +7674,7 @@ linux_ldnmp() {
 	  echo "Redis Port : 6379"
 	  echo ""
 	  echo "웹 사이트 URL : https : //$yuming"
-	  echo "백엔드 로그인 경로 : /admin"
+	  echo "백그라운드 로그인 경로 : /admin"
 	  echo "------------------------"
 	  echo "사용자 이름 : 관리자"
 	  echo "비밀번호 : 관리자"
