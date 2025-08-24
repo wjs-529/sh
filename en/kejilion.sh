@@ -8476,7 +8476,7 @@ linux_panel() {
 	  echo -e "${gl_kjlan}21.  ${color21}VScode web version${gl_kjlan}22.  ${color22}UptimeKuma monitoring tool"
 	  echo -e "${gl_kjlan}23.  ${color23}Memos web page memo${gl_kjlan}24.  ${color24}Webtop Remote Desktop Web Edition${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}25.  ${color25}Nextcloud network disk${gl_kjlan}26.  ${color26}QD-Today timing task management framework"
-	  echo -e "${gl_kjlan}27.  ${color27}Dockge Container Stack Management Panel${gl_kjlan}28.  ${color28}LibreSpeed Speed Test Tool"
+	  echo -e "${gl_kjlan}27.  ${color27}Dockge Container Stack Management Panel${gl_kjlan}28.  ${color28}LibreSpeed ​​Speed ​​Test Tool"
 	  echo -e "${gl_kjlan}29.  ${color29}searxng aggregation search site${gl_huang}★${gl_bai}                 ${gl_kjlan}30.  ${color30}PhotoPrism Private Album System"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}31.  ${color31}StirlingPDF tool collection${gl_kjlan}32.  ${color32}drawio free online charting software${gl_huang}★${gl_bai}"
@@ -11529,7 +11529,7 @@ EOF
 								  (crontab -l ; echo "0 0 * * $weekday $newquest") | crontab - > /dev/null 2>&1
 								  ;;
 							  3)
-								  read -e -p "Choose what time to perform tasks every day? (Hours, 0-23):" hour
+								  read -e -p "Choose when to perform tasks every day? (Hours, 0-23):" hour
 								  (crontab -l ; echo "0 $hour * * * $newquest") | crontab - > /dev/null 2>&1
 								  ;;
 							  4)

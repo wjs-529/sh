@@ -1667,7 +1667,7 @@ cf_purge_cache() {
 	if [[ "$answer" == "y" ]]; then
 	  echo "CF情報が保存されます$CONFIG_FILE、後でCF情報を変更できます"
 	  read -e -p "API_TOKENを入力してください：" API_TOKEN
-	  read -e -p "CFユーザー名を入力してください：" EMAIL
+	  read -e -p "CFユーザ​​ー名を入力してください：" EMAIL
 	  read -e -p "ゾーン_id（スペースで区切られた複数）を入力してください。" -a ZONE_IDS
 
 	  mkdir -p /home/web/config/
@@ -5863,7 +5863,7 @@ delete_connection() {
 
 	local connection=$(sed -n "${num}p" "$CONFIG_FILE")
 	if [[ -z "$connection" ]]; then
-		echo "エラー：対応する接続は見つかりませんでした。"
+		echo "エラー：対応する接続​​は見つかりませんでした。"
 		return
 	fi
 
@@ -5885,7 +5885,7 @@ use_connection() {
 
 	local connection=$(sed -n "${num}p" "$CONFIG_FILE")
 	if [[ -z "$connection" ]]; then
-		echo "エラー：対応する接続は見つかりませんでした。"
+		echo "エラー：対応する接続​​は見つかりませんでした。"
 		return
 	fi
 
@@ -7632,14 +7632,14 @@ linux_ldnmp() {
 	  echo "パスワード：$dbusepasswd"
 	  echo "データベースプレフィックス：mac_"
 	  echo "------------------------"
-	  echo "インストールが成功した後、バックグラウンドアドレスにログインします"
+	  echo "安装成功后登录后台地址"
 	  echo "https://$yuming/vip.php"
 
 		;;
 
 	  6)
 	  clear
-	  # 一本足のカウントカード
+	  # 独脚数卡
 	  webname="独脚数卡"
 	  send_stats "インストール$webname"
 	  echo "展開を開始します$webname"
@@ -11348,7 +11348,7 @@ EOF
 
 				# タイムゾーンと時間を表示します
 				echo "現在のシステムタイムゾーン：$timezone"
-				echo "当前系统时间：$current_time"
+				echo "現在のシステム時間：$current_time"
 
 				echo ""
 				echo "タイムゾーンの切り替え"
@@ -11357,8 +11357,8 @@ EOF
 				echo "1。中国の上海時間2。中国の香港時間"
 				echo "3。日本の東京時間4。韓国のソウル時間"
 				echo "5。シンガポール時間6。インドのコルカタ時間"
-				echo "7.  阿联酋迪拜时间           8.  澳大利亚悉尼时间"
-				echo "9.  泰国曼谷时间"
+				echo "7。アラブ首長国連邦のドバイ時間8。オーストラリアのシドニー時間"
+				echo "9。タイのバンコクでの時間"
 				echo "------------------------"
 				echo "ヨーロッパ"
 				echo "11。英国のロンドン時間12。パリの時間フランスの時間"
@@ -11529,7 +11529,7 @@ EOF
 								  (crontab -l ; echo "0 0 * * $weekday $newquest") | crontab - > /dev/null 2>&1
 								  ;;
 							  3)
-								  read -e -p "毎日タスクを実行する時間を選択しますか？ （時間、0-23）：" hour
+								  read -e -p "毎日タスクを実行する時期を選択しますか？ （時間、0-23）：" hour
 								  (crontab -l ; echo "0 $hour * * * $newquest") | crontab - > /dev/null 2>&1
 								  ;;
 							  4)
@@ -12022,7 +12022,7 @@ EOF
 
 			  echo "プライバシーとセキュリティ"
 			  echo "スクリプトは、ユーザー機能に関するデータを収集し、スクリプトエクスペリエンスを最適化し、より楽しく便利な機能を作成します。"
-			  echo "スクリプトバージョン番号、使用時間、システムバージョン、CPUアーキテクチャ、マシンの国、使用される機能の名前を収集します。"
+			  echo "スクリプトバージョン番号、使用時間、システムバージョン、CPUアーキテクチャ、マシンの国、および使用される関数の名前を収集します。"
 			  echo "------------------------------------------------"
 			  echo -e "現在のステータス：$status_message"
 			  echo "--------------------"
@@ -12216,8 +12216,8 @@ linux_file() {
 
 				read -e -p "ターゲットパス（新しいファイル名またはディレクトリ名を含む）を入力してください。" dest_path
 				if [ -z "$dest_path" ]; then
-					echo "エラー：ターゲットパスを入力してください。"
-					send_stats "ファイルまたはディレクトリの移動に失敗しました：宛先パスが指定されていません"
+					echo "错误: 请输入目标路径。"
+					send_stats "移动文件或目录失败: 目标路径未指定"
 					continue
 				fi
 
@@ -12330,7 +12330,7 @@ run_commands_on_servers() {
 	local SERVERS_FILE="$HOME/cluster/servers.py"
 	local SERVERS=$(grep -oP '{"name": "\K[^"]+|"hostname": "\K[^"]+|"port": \K[^,]+|"username": "\K[^"]+|"password": "\K[^"]+' "$SERVERS_FILE")
 
-	# 抽出された情報を配列に変換します
+	# 将提取的信息转换为数组
 	IFS=$'\n' read -r -d '' -a SERVER_ARRAY <<< "$SERVERS"
 
 	# サーバーを繰り返してコマンドを実行します
@@ -12373,7 +12373,7 @@ while true; do
 	  echo -e "${gl_kjlan}4.  ${gl_bai}バックアップクラスター${gl_kjlan}5.  ${gl_bai}クラスターを復元します"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  echo -e "${gl_kjlan}バッチでタスクを実行します${gl_bai}"
-	  echo -e "${gl_kjlan}11. ${gl_bai}Tech Lionスクリプトをインストールします${gl_kjlan}12. ${gl_bai}システムを更新します${gl_kjlan}13. ${gl_bai}システムを掃除します"
+	  echo -e "${gl_kjlan}11. ${gl_bai}Tech Lionスクリプトをインストールします${gl_kjlan}12. ${gl_bai}更新系统              ${gl_kjlan}13. ${gl_bai}システムを掃除します"
 	  echo -e "${gl_kjlan}14. ${gl_bai}Dockerをインストールします${gl_kjlan}15. ${gl_bai}BBR3をインストールします${gl_kjlan}16. ${gl_bai}1G仮想メモリをセットアップします"
 	  echo -e "${gl_kjlan}17. ${gl_bai}タイムゾーンを上海に設定します${gl_kjlan}18. ${gl_bai}すべてのポートを開きます${gl_kjlan}51. ${gl_bai}カスタムコマンド"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
