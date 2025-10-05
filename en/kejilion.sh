@@ -13405,7 +13405,7 @@ EOF
 					  sed -i 's/^ENABLE_STATS="false"/ENABLE_STATS="true"/' /usr/local/bin/k
 					  sed -i 's/^ENABLE_STATS="false"/ENABLE_STATS="true"/' ~/kejilion.sh
 					  echo "Collection has been enabled"
-					  send_stats "Privacy and security have been enabled for collection"
+					  send_stats "Privacy and security collection has been enabled"
 					  ;;
 				  2)
 					  cd ~
