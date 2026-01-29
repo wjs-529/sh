@@ -9633,7 +9633,7 @@ moltbot_menu() {
 	install_moltbot() {
 		echo "开始安装 Moltbot……"
 		country=$(curl -s ipinfo.io/country)
-		if [ "$country" = "CN" ]; then
+		if [[ "$country" == "CN" || "$country" == "HK" ]]; then
 			pnpm config set registry https://registry.npmmirror.com
 		fi
 		curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
