@@ -9646,18 +9646,25 @@ moltbot_menu() {
 		
 	}
 
-	start_bot() {
-		echo "启动 Clawdbot..."
+	start_tmux() {
 		install tmux
 		tmux kill-session -t gateway > /dev/null 2>&1
 		tmux new -d -s gateway "clawdbot gateway"
 		sleep 3
+	}
+
+
+	start_bot() {
+		echo "启动 Clawdbot..."
+		start_tmux
 		break_end
 	}
 
 	stop_bot() {
 		echo "停止 Clawdbot..."
-		clawdbot gateway stop
+		install tmux
+		tmux kill-session -t gateway > /dev/null 2>&1
+		sleep 3
 		break_end
 	}
 
@@ -9672,10 +9679,7 @@ moltbot_menu() {
 		read model
 		echo "切换模型为 $model"
 		clawdbot models set "$model"
-		clawdbot gateway stop
-		install tmux
-		tmux kill-session -t gateway > /dev/null 2>&1
-		tmux new -d -s gateway "clawdbot gateway"
+		start_tmux
 		break_end
 	}
 
@@ -9684,10 +9688,7 @@ moltbot_menu() {
 		printf "请输入TG机器人收到的连接码 (例如 Pairing code: NYA99R2F: "
 		read code
 		clawdbot pairing approve telegram $code
-		clawdbot gateway stop
-		install tmux
-		tmux kill-session -t gateway > /dev/null 2>&1
-		tmux new -d -s gateway "clawdbot gateway"
+		start_tmux
 		break_end
 	}
 
@@ -9722,7 +9723,7 @@ moltbot_menu() {
 			6) change_tg_bot_code ;;
 			7) update_moltbot ;;
 			8) uninstall_moltbot ;;
-			0) echo "退出脚本"; exit 0 ;;
+			0) break ;;
 			*) echo "无效选项，请重新输入"; pause ;;
 		esac
 	done
