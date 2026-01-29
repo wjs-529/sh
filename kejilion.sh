@@ -9646,25 +9646,17 @@ moltbot_menu() {
 		
 	}
 
-	start_tmux() {
-		install tmux
-		tmux kill-session -t gateway > /dev/null 2>&1
-		tmux new -d -s gateway "clawdbot gateway"
-		sleep 3
-	}
-
 
 	start_bot() {
 		echo "启动 Clawdbot..."
-		start_tmux
+		clawdbot gateway start
 		break_end
 	}
 
 	stop_bot() {
 		echo "停止 Clawdbot..."
 		install tmux
-		tmux kill-session -t gateway > /dev/null 2>&1
-		sleep 3
+		clawdbot gateway stop
 		break_end
 	}
 
@@ -9679,7 +9671,6 @@ moltbot_menu() {
 		read model
 		echo "切换模型为 $model"
 		clawdbot models set "$model"
-		start_tmux
 		break_end
 	}
 
@@ -9688,7 +9679,6 @@ moltbot_menu() {
 		printf "请输入TG机器人收到的连接码 (例如 Pairing code: NYA99R2F: "
 		read code
 		clawdbot pairing approve telegram $code
-		start_tmux
 		break_end
 	}
 
