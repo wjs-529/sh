@@ -9648,6 +9648,7 @@ moltbot_menu() {
 
 	start_bot() {
 		echo "启动 Clawdbot..."
+		install tmux
 		tmux kill-session -t gateway > /dev/null 2>&1
 		tmux new -d -s gateway "clawdbot gateway"
 		sleep 3
@@ -9672,6 +9673,7 @@ moltbot_menu() {
 		echo "切换模型为 $model"
 		clawdbot models set "$model"
 		clawdbot gateway stop
+		install tmux
 		tmux kill-session -t gateway > /dev/null 2>&1
 		tmux new -d -s gateway "clawdbot gateway"
 		break_end
@@ -9683,6 +9685,7 @@ moltbot_menu() {
 		read code
 		clawdbot pairing approve telegram $code
 		clawdbot gateway stop
+		install tmux
 		tmux kill-session -t gateway > /dev/null 2>&1
 		tmux new -d -s gateway "clawdbot gateway"
 		break_end
