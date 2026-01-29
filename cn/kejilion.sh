@@ -9641,8 +9641,7 @@ moltbot_menu() {
 		clawdbot doctor --fix
 		clawdbot onboard --install-daemon
 		add_app_id
-		echo "安装完成"
-		pause
+		break_end
 		
 	}
 
