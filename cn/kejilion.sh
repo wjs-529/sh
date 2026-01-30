@@ -9612,8 +9612,8 @@ moltbot_menu() {
 		local install_status=$(get_install_status)
 		local running_status=$(get_running_status)
 		echo "======================================="
-		echo -e " ClawdBot > MoltBot > OpenClaw 管理菜单"
-		echo -e " $install_status $running_status"
+		echo -e "ClawdBot > MoltBot > OpenClaw 管理"
+		echo -e "$install_status $running_status"
 		echo "======================================="
 		echo "1. 安装"
 		echo "2. 启动"
