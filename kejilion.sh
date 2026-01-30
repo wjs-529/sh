@@ -9646,8 +9646,8 @@ moltbot_menu() {
 		if [[ "$country" == "CN" || "$country" == "HK" ]]; then
 			pnpm config set registry https://registry.npmmirror.com
 		fi
-		curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
 		curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
+		ln -s /root/.local/bin/openclaw /usr/local/bin/openclaw
 		source ~/.bashrc
 		source ~/.profile
 		openclaw doctor --fix
