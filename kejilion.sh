@@ -9630,6 +9630,15 @@ moltbot_menu() {
 		printf "请输入选项并回车: "
 	}
 
+
+	start_tmux() {
+		install tmux
+		tmux kill-session -t gateway > /dev/null 2>&1
+		tmux new -d -s gateway "clawdbot gateway"
+		sleep 3
+	}
+
+
 	install_moltbot() {
 		echo "开始安装 Moltbot……"
 		country=$(curl -s ipinfo.io/country)
@@ -9650,7 +9659,7 @@ moltbot_menu() {
 
 	start_bot() {
 		echo "启动 Clawdbot..."
-		clawdbot gateway start
+		start_tmux
 		break_end
 	}
 
