@@ -9710,6 +9710,7 @@ moltbot_menu() {
 	uninstall_moltbot() {
 		echo "卸载 OpenClaw..."
 		openclaw uninstall
+		npm uninstall -g openclaw
 		sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
 		echo "卸载完成"
 		break_end
