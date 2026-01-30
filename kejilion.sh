@@ -9672,6 +9672,7 @@ moltbot_menu() {
 		echo "停止 OpenClaw..."
 		install tmux
 		openclaw gateway stop
+		tmux kill-session -t gateway > /dev/null 2>&1
 		break_end
 	}
 
@@ -13507,7 +13508,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 
 		  ;;
 
-	  114|Moltbot|ClawdBot|moltbot|clawdbot)
+	  114|Moltbot|ClawdBot|moltbot|clawdbot|openclaw|OpenClaw)
 	  	  moltbot_menu
 		  ;;
 
