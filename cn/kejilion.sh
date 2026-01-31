@@ -9702,7 +9702,7 @@ moltbot_menu() {
 		echo "更新 OpenClaw..."
 		openclaw update --restart
 		add_app_id
-		echo "卸载完成"
+		echo "更新完成"
 		break_end
 	}
 
