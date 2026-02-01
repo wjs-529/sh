@@ -9836,6 +9836,8 @@ moltbot_menu() {
 			"$model_id" \
 			"$base_url" \
 			"$api_key"
+	
+		break_end
 	}
 
 
