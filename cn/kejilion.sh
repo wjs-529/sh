@@ -9648,15 +9648,10 @@ moltbot_menu() {
 		echo "开始安装 OpenClaw..."
 		send_stats "开始安装 OpenClaw..."
 
-		if [ -f /etc/os-release ]; then
-			. /etc/os-release
-			case "$ID" in
-				rhel|centos|almalinux|rocky|fedora|scientific|oracle)
-					dnf update -y
-					dnf groupinstall -y "Development Tools"
-					dnf install -y cmake
-					;;
-			esac
+		if command -v dnf &>/dev/null; then
+			dnf update -y
+			dnf groupinstall -y "Development Tools"
+			dnf install -y cmake
 		fi
 
 		country=$(curl -s ipinfo.io/country)
