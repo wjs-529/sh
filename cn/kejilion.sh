@@ -9915,7 +9915,7 @@ moltbot_menu() {
 			5) change_model ;;
 			6) add-openclaw-provider-interactive ;;
 			7) change_tg_bot_code ;;
-			7)
+			8)
 				install nano
 				nano ~/.openclaw/openclaw.json
 				;;
