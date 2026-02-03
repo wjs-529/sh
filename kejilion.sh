@@ -9639,6 +9639,7 @@ moltbot_menu() {
 
 	start_tmux() {
 		install tmux
+		openclaw gateway stop
 		tmux kill-session -t gateway > /dev/null 2>&1
 		tmux new -d -s gateway "openclaw gateway"
 		check_crontab_installed
@@ -9663,7 +9664,6 @@ moltbot_menu() {
 			npm config set registry https://registry.npmmirror.com
 		fi
 		curl -fsSL https://openclaw.ai/install.sh | bash
-		openclaw gateway stop
 		start_tmux
 		add_app_id
 		break_end
@@ -9681,7 +9681,6 @@ moltbot_menu() {
 	stop_bot() {
 		echo "停止 OpenClaw..."
 		send_stats "停止 OpenClaw..."
-		install tmux
 		openclaw gateway stop
 		tmux kill-session -t gateway > /dev/null 2>&1
 		break_end
