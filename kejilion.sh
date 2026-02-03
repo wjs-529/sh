@@ -9871,6 +9871,8 @@ moltbot_menu() {
 
 
 	install_plugin() {
+
+		send_stats "安装插件"
 		# 输出推荐的实用插件列表，便于用户复制
 		echo "推荐的实用插件（可直接复制名称输入）："
 		echo "@openclaw/voice-call    # 启用语音通话功能，支持 Twilio 集成"
@@ -9899,10 +9901,9 @@ moltbot_menu() {
 		else
 			echo "安装失败。请检查插件名称是否正确，或参考 OpenClaw 文档排查问题。"
 		fi
+
 		break_end
 	}
-
-
 
 
 	change_tg_bot_code() {
