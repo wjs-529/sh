@@ -9894,10 +9894,11 @@ moltbot_menu() {
 		# 执行安装命令
 		echo "正在安装插件：$plugin_name"
 		openclaw plugins install "$plugin_name"
+		start_tmux
 
 		# 检查命令执行结果
 		if [ $? -eq 0 ]; then
-			echo "插件 $plugin_name 安装成功。请重启 OpenClaw Gateway 服务（命令：openclaw gateway --restart）以应用更改。"
+			echo "插件 $plugin_name 安装成功。"
 		else
 			echo "安装失败。请检查插件名称是否正确，或参考 OpenClaw 文档排查问题。"
 		fi
