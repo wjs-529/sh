@@ -9861,8 +9861,21 @@ moltbot_menu() {
 		openclaw models list --all
 		echo "当前模型:"
 		openclaw models list
-		printf "请输入要设置的模型名称 (例如 openrouter/openai/gpt-4o): "
+		printf "请输入要设置的模型名称 (例如 openrouter/openai/gpt-4o)（输入 0 退出）： "
 		read model
+
+		# 检查是否输入 0 以退出
+		if [ "$model" = "0" ]; then
+			echo "操作已取消。"
+			return 0  # 正常退出函数
+		fi
+
+		# 验证输入是否为空
+		if [ -z "$model" ]; then
+			echo "错误：模型名称不能为空。请重试。"
+			return 1
+		fi
+
 		echo "切换模型为 $model"
 		openclaw models set "$model"
 		break_end
@@ -9886,8 +9899,13 @@ moltbot_menu() {
 		echo "@openclaw/msteams       # 添加 Microsoft Teams 支持"
 
 		# 提示用户输入插件名称
-		echo -n "请输入要安装的插件名称（例如：@xzq-xu/feishu 飞书插件）： "
+		echo -n "请输入要安装的插件名称（例如：@xzq-xu/feishu 飞书插件）（输入 0 退出）： "
 		read plugin_name
+
+		if [ "$plugin_name" = "0" ]; then
+			echo "操作已取消。"
+			return 0  # 正常退出函数
+		fi
 
 		# 验证输入是否为空
 		if [ -z "$plugin_name" ]; then
@@ -9925,8 +9943,13 @@ moltbot_menu() {
 		echo "agent-browser         # 使用 Playwright 进行无头浏览器自动化"
 
 		# 提示用户输入技能名称
-		echo -n "请输入要安装的技能名称（例如：github-integration）： "
+		echo -n "请输入要安装的技能名称（例如：github-integration）（输入 0 退出）： "
 		read skill_name
+
+		if [ "$skill_name" = "0" ]; then
+			echo "操作已取消。"
+			return 0  # 正常退出函数
+		fi
 
 		# 验证输入是否为空
 		if [ -z "$skill_name" ]; then
@@ -9953,8 +9976,21 @@ moltbot_menu() {
 
 	change_tg_bot_code() {
 		send_stats "机器人对接"
-		printf "请输入TG机器人收到的连接码 (例如 Pairing code: NYA99R2F: "
+		printf "请输入TG机器人收到的连接码 (例如 Pairing code: NYA99R2F)（输入 0 退出）： "
 		read code
+
+		# 检查是否输入 0 以退出
+		if [ "$code" = "0" ]; then
+			echo "操作已取消。"
+			return 0  # 正常退出函数
+		fi
+
+		# 验证输入是否为空
+		if [ -z "$code" ]; then
+			echo "错误：连接码不能为空。请重试。"
+			return 1
+		fi
+
 		openclaw pairing approve telegram $code
 		break_end
 	}
