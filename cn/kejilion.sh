@@ -9625,10 +9625,11 @@ moltbot_menu() {
 		echo "6.  加新模型API"
 		echo "7.  TG输入连接码"
 		echo "8.  安装插件（如：飞书）"
-		echo "9.  编辑主配置文件"
+		echo "9.  安装技能（skills）"
+		echo "10. 编辑主配置文件"
 		echo "--------------------"
-		echo "10. 更新"
-		echo "11. 卸载"
+		echo "11. 更新"
+		echo "12. 卸载"
 		echo "--------------------"
 		echo "0. 返回上一级选单"
 		echo "--------------------"
@@ -9873,6 +9874,9 @@ moltbot_menu() {
 	install_plugin() {
 
 		send_stats "安装插件"
+
+		echo "所有插件"
+		openclaw plugins list
 		# 输出推荐的实用插件列表，便于用户复制
 		echo "推荐的实用插件（可直接复制名称输入）："
 		echo "@openclaw/voice-call    # 启用语音通话功能，支持 Twilio 集成"
@@ -9905,6 +9909,46 @@ moltbot_menu() {
 
 		break_end
 	}
+
+
+	install_skill() {
+		send_stats "安装技能"
+
+		echo "所有技能"
+		openclaw skills list
+		# 输出推荐的实用技能列表，便于用户复制
+		echo "推荐的实用技能（可直接复制名称输入）："
+		echo "github-integration    # 管理 GitHub Issues 和 Pull Requests，支持 Webhook"
+		echo "notion-integration    # 操作 Notion 数据库和页面"
+		echo "apple-notes           # 管理 macOS/iOS 的 Apple Notes"
+		echo "home-assistant        # 通过 Home Assistant Hub 控制智能家居"
+		echo "agent-browser         # 使用 Playwright 进行无头浏览器自动化"
+
+		# 提示用户输入技能名称
+		echo -n "请输入要安装的技能名称（例如：github-integration）： "
+		read skill_name
+
+		# 验证输入是否为空
+		if [ -z "$skill_name" ]; then
+			echo "错误：技能名称不能为空。请重试。"
+			return 1
+		fi
+
+		# 执行安装命令
+		echo "正在安装技能：$skill_name"
+		openclaw skills install "$skill_name"
+		start_tmux
+
+		# 检查命令执行结果
+		if [ $? -eq 0 ]; then
+			echo "技能 $skill_name 安装成功。"
+		else
+			echo "安装失败。请检查技能名称是否正确，或参考 OpenClaw 文档排查问题。"
+		fi
+
+		break_end
+	}
+
 
 
 	change_tg_bot_code() {
@@ -9952,13 +9996,14 @@ moltbot_menu() {
 			6) add-openclaw-provider-interactive ;;
 			7) change_tg_bot_code ;;
 			8) install_plugin ;;
-			9)
+			9) install_skill ;;
+			10)
 				send_stats "编辑 OpenClaw 配置文件"
 				install nano
 				nano ~/.openclaw/openclaw.json
 				;;
-			10) update_moltbot ;;
-			11) uninstall_moltbot ;;
+			11) update_moltbot ;;
+			12) uninstall_moltbot ;;
 			*) break ;;
 		esac
 	done
