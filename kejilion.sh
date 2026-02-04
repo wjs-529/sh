@@ -9982,6 +9982,7 @@ moltbot_menu() {
 	install_skill() {
 		send_stats "安装技能"
 		while true; do
+			clear
 			echo "========================================"
 			echo "            技能管理 (安装)            "
 			echo "========================================"
