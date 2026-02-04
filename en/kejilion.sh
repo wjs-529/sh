@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.3.7"
+sh_v="4.3.8"
 
 
 gl_hui='\e[37m'
@@ -2667,7 +2667,7 @@ clear_container_rules() {
 		iptables -D DOCKER-USER -p tcp -d "$container_ip" -j DROP
 	fi
 
-	# Clear the rules that allow the specified IP
+	# Clear the rules that allow specified IPs
 	if iptables -C DOCKER-USER -p tcp -s "$allowed_ip" -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -D DOCKER-USER -p tcp -s "$allowed_ip" -d "$container_ip" -j ACCEPT
 	fi
@@ -2686,7 +2686,7 @@ clear_container_rules() {
 		iptables -D DOCKER-USER -p udp -d "$container_ip" -j DROP
 	fi
 
-	# Clear the rules that allow the specified IP
+	# Clear the rules that allow specified IPs
 	if iptables -C DOCKER-USER -p udp -s "$allowed_ip" -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -D DOCKER-USER -p udp -s "$allowed_ip" -d "$container_ip" -j ACCEPT
 	fi
@@ -3523,7 +3523,7 @@ ldnmp_Proxy_backend() {
 list_stream_services() {
 
 	STREAM_DIR="/home/web/stream.d"
-	printf "%-25s %-18s %-25s %-20s\n" "Service name" "Communication type" "local address" "Backend address"
+	printf "%-25s %-18s %-25s %-20s\n" "Service name" "Communication type" "Local address" "Backend address"
 
 	if [ -z "$(ls -A "$STREAM_DIR")" ]; then
 		return
@@ -5005,7 +5005,7 @@ fetch_github_ssh_keys() {
 	local base_dir="${2:-$HOME}"
 
 	echo "Before proceeding, make sure you have added your SSH public key to your GitHub account:"
-	echo "1. Login${gh_https_url}github.com/settings/keys"
+	echo "1. Log in${gh_https_url}github.com/settings/keys"
 	echo "2. Click New SSH key or Add SSH key"
 	echo "3. Title can be filled in as desired (for example: Home Laptop 2026)"
 	echo "4. Paste the contents of the local public key (usually the entire contents of ~/.ssh/id_ed25519.pub or id_rsa.pub) into the Key field"
@@ -6054,7 +6054,7 @@ Kernel_optimize() {
 			  cd ~
 			  clear
 			  optimize_web_server
-			  send_stats "Website optimization model"
+			  send_stats "Website optimization mode"
 			  ;;
 		  4)
 			  cd ~
@@ -6317,9 +6317,9 @@ send_stats "Command Favorites"
 bash <(curl -l -s ${gh_proxy}raw.githubusercontent.com/byJoey/cmdbox/refs/heads/main/install.sh)
 }
 
-# Create a backup
+# Create backup
 create_backup() {
-	send_stats "Create a backup"
+	send_stats "Create backup"
 	local TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 	# Prompt user for backup directory
@@ -6361,7 +6361,7 @@ create_backup() {
 		echo "- $path"
 	done
 
-	# Create a backup
+	# Create backup
 	echo "Creating backup$BACKUP_NAME..."
 	install tar
 	tar -czvf "$BACKUP_DIR/$BACKUP_NAME" "${BACKUP_PATHS[@]}"
@@ -6782,7 +6782,7 @@ disk_manager() {
 	send_stats "Hard disk management function"
 	while true; do
 		clear
-		echo "Hard drive partition management"
+		echo "Hard disk partition management"
 		echo -e "${gl_huang}This feature is under internal testing and should not be used in a production environment.${gl_bai}"
 		echo "------------------------"
 		list_partitions
@@ -6989,7 +6989,7 @@ run_task() {
 	else
 		echo "Sync failed! Please check the following:"
 		echo "1. Is the network connection normal?"
-		echo "2. Is the remote host accessible?"
+		echo "2. Whether the remote host is accessible"
 		echo "3. Is the authentication information correct?"
 		echo "4. Do the local and remote directories have correct access permissions?"
 	fi
@@ -7207,7 +7207,7 @@ linux_tools() {
 
   while true; do
 	  clear
-	  # send_stats "Basic Tools"
+	  # send_stats "Basic tools"
 	  echo -e "basic tools"
 
 	  tools=(
@@ -7842,7 +7842,7 @@ docker_ssh_migration() {
 
 		echo -e "${gl_huang}Transferring backup...${gl_bai}"
 		if [[ -z "$TARGET_PASS" ]]; then
-			# Log in with key
+			# Log in using key
 			scp -P "$TARGET_PORT" -o StrictHostKeyChecking=no -r "$LATEST_TAR" "$TARGET_USER@$TARGET_IP:/tmp/"
 		fi
 
@@ -8209,7 +8209,7 @@ linux_test() {
 	  echo -e "${gl_kjlan}14.  ${gl_bai}nxtrace fast backhaul test script"
 	  echo -e "${gl_kjlan}15.  ${gl_bai}nxtrace specifies IP backhaul test script"
 	  echo -e "${gl_kjlan}16.  ${gl_bai}ludashi2020 three network line test"
-	  echo -e "${gl_kjlan}17.  ${gl_bai}i-abc multifunctional speed test script"
+	  echo -e "${gl_kjlan}17.  ${gl_bai}i-abc multi-function speed test script"
 	  echo -e "${gl_kjlan}18.  ${gl_bai}NetQuality network quality check script${gl_huang}★${gl_bai}"
 
 	  echo -e "${gl_kjlan}------------------------"
@@ -9588,7 +9588,33 @@ linux_ldnmp() {
 moltbot_menu() {
 	local app_id="114"
 
-	send_stats "clawdbot/moltbot installation"
+	send_stats "clawdbot/moltbot management"
+
+	check_openclaw_update() {
+		# First check if NPM is available
+		if ! command -v npm >/dev/null 2>&1; then
+			return 1
+		fi
+
+		# Use NPM to query the local version and remove the prefix (such as openclaw@)
+		local_version=$(npm list -g openclaw --depth=0 | grep openclaw | awk '{print $NF}' | sed 's/^.*@//' 2>/dev/null)
+		if [ -z "$local_version" ]; then
+			return 1
+		fi
+
+		# Query remote versions using NPM
+		remote_version=$(npm view openclaw version 2>/dev/null)
+		if [ -z "$remote_version" ]; then
+			return 1
+		fi
+
+		if [ "$local_version" != "$remote_version" ]; then
+			echo "${gl_huang}New version detected:$remote_version${gl_bai}"
+		else
+			echo "${gl_lv}The current version is the latest:$local_version${gl_bai}"
+		fi
+	}
+
 	get_install_status() {
 		if command -v openclaw >/dev/null 2>&1; then
 			echo "${gl_lv}Installed${gl_bai}"
@@ -9605,15 +9631,18 @@ moltbot_menu() {
 		fi
 	}
 
-
 	show_menu() {
+
+
 		clear
 
 		local install_status=$(get_install_status)
 		local running_status=$(get_running_status)
+		local update_message=$(check_openclaw_update)
+
 		echo "======================================="
 		echo -e "ClawdBot > MoltBot > OpenClaw Management"
-		echo -e "$install_status $running_status"
+		echo -e "$install_status $running_status $update_message"
 		echo "======================================="
 		echo "1. Installation"
 		echo "2. Start"
@@ -9621,10 +9650,14 @@ moltbot_menu() {
 		echo "--------------------"
 		echo "4. Log viewing"
 		echo "5. Change model"
-		echo "6. Enter the connection code in TG"
+		echo "6. Add new model API"
+		echo "7. Enter the connection code in TG"
+		echo "8. Install plug-ins (such as Feishu)"
+		echo "9. Install skills"
+		echo "10. Edit the main configuration file"
 		echo "--------------------"
-		echo "7. Update"
-		echo "8. Uninstall"
+		echo "11. Update"
+		echo "12. Uninstall"
 		echo "--------------------"
 		echo "0. Return to the previous menu"
 		echo "--------------------"
@@ -9634,6 +9667,7 @@ moltbot_menu() {
 
 	start_tmux() {
 		install tmux
+		openclaw gateway stop
 		tmux kill-session -t gateway > /dev/null 2>&1
 		tmux new -d -s gateway "openclaw gateway"
 		check_crontab_installed
@@ -9644,17 +9678,20 @@ moltbot_menu() {
 
 	install_moltbot() {
 		echo "Start installing OpenClaw..."
+		send_stats "Start installing OpenClaw..."
+
+		if command -v dnf &>/dev/null; then
+			dnf update -y
+			dnf groupinstall -y "Development Tools"
+			dnf install -y cmake
+		fi
+
 		country=$(curl -s ipinfo.io/country)
 		if [[ "$country" == "CN" || "$country" == "HK" ]]; then
 			pnpm config set registry https://registry.npmmirror.com
+			npm config set registry https://registry.npmmirror.com
 		fi
-		curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
-		ln -s /root/.local/bin/openclaw /usr/local/bin/openclaw
-		source ~/.bashrc
-		source ~/.profile
-		openclaw doctor --fix
-		openclaw onboard --install-daemon
-		openclaw gateway stop
+		curl -fsSL https://openclaw.ai/install.sh | bash
 		start_tmux
 		add_app_id
 		break_end
@@ -9663,14 +9700,15 @@ moltbot_menu() {
 
 
 	start_bot() {
-		echo "Starting OpenClaw..."
+		echo "Start OpenClaw..."
+		send_stats "Start OpenClaw..."
 		start_tmux
 		break_end
 	}
 
 	stop_bot() {
 		echo "Stop OpenClaw..."
-		install tmux
+		send_stats "Stop OpenClaw..."
 		openclaw gateway stop
 		tmux kill-session -t gateway > /dev/null 2>&1
 		break_end
@@ -9678,29 +9716,318 @@ moltbot_menu() {
 
 	view_logs() {
 		echo "View OpenClaw logs, Ctrl+C to exit"
+		send_stats "View OpenClaw logs"
 		openclaw logs
 		break_end
 	}
 
+
+
+	add-openclaw-provider() {
+		local config_file="${HOME}/.openclaw/openclaw.json"
+		local provider_name="$1"
+		local models_id="$2"
+		local base_url="$3"
+		local api_key="$4"
+
+		echo "=== Add custom OpenAI compatible models to OpenClaw ==="
+		echo "Provider: $provider_name"
+		echo "Model ID: $models_id"
+		echo "Base URL: $base_url"
+		echo "API Key: ${api_key:0:8}****"
+
+		# Check parameters
+		if [[ -z "$provider_name" || -z "$models_id" || -z "$base_url" || -z "$api_key" ]]; then
+			echo "Error: Parameter cannot be empty!"
+			echo "Usage: add-openclaw-provider <provider> <model-id> <base-url> <api-key>"
+			return 1
+		fi
+
+		# Check jq
+		if ! command -v jq &> /dev/null; then
+			echo "Install jq: apt update && apt install -y jq"
+			apt update && apt install -y jq || {
+				echo "Installation of jq failed"
+				return 1
+			}
+		fi
+
+		# Back up original files
+		if [[ -f "$config_file" ]]; then
+			cp "$config_file" "${config_file}.bak.$(date +%s)"
+			echo "Backup:${config_file}.bak.*"
+		fi
+
+
+		jq --arg prov "$provider_name" \
+		   --arg url "$base_url" \
+		   --arg key "$api_key" \
+		   --arg mid "$models_id" \
+		'
+		.models |= (
+			(. // { mode: "merge", providers: {} })
+			| .mode = "merge"
+			| .providers[$prov] = {
+				baseUrl: $url,
+				apiKey: $key,
+				api: "openai-completions",
+				models: [
+					{
+						id: $mid,
+						name: ($prov + " / " + $mid),
+						input: ["text"],
+						contextWindow: 131072,
+						maxTokens: 8192,
+						cost: {
+							input: 0.14,
+							output: 0.28,
+							cacheRead: 0,
+							cacheWrite: 0
+						}
+					}
+				]
+			}
+		)
+		' "$config_file" > "${config_file}.tmp" && mv "${config_file}.tmp" "$config_file"
+
+		if [[ $? -eq 0 ]]; then
+			echo "✅ Provider added:$provider_name"
+			echo "📦 Model reference method:$provider_name/$models_id"
+			echo "🔧 Set default model:"
+			echo "    openclaw config patch '{\"agents.defaults.model.primary\": \"$provider_name/$models_id\"}'"
+			echo "🔄 Restart the gateway:"
+			echo "    openclaw gateway restart"
+		else
+			echo "❌ Add failed, check jq syntax"
+			return 1
+		fi
+	}
+
+	# Optional: Automatically set defaults and restart
+	add-openclaw-provider-and-switch() {
+		install jq
+
+		add-openclaw-provider "$1" "$2" "$3" "$4"
+
+		if [[ $? -eq 0 ]]; then
+			echo "🔄 Set default model and restart gateway..."
+			openclaw models set "$1/$2"
+			start_tmux
+			echo "✅ Done! Current default model:$1/$2"
+			openclaw status | grep -A2 "Sessions"
+		fi
+	}
+
+
+
+
+
+	add-openclaw-provider-interactive() {
+		send_stats "Add API"
+		echo "=== Add OpenClaw Provider interactively ==="
+
+		# Provider name
+		read -rp "Please enter the Provider name (eg: deepseek):" provider_name
+		while [[ -z "$provider_name" ]]; do
+			echo "❌ Provider name cannot be empty"
+			read -rp "Please enter Provider name:" provider_name
+		done
+
+		# Model ID
+		read -rp "Please enter Model ID (eg: deepseek-chat):" model_id
+		while [[ -z "$model_id" ]]; do
+			echo "❌ Model ID cannot be empty"
+			read -rp "Please enter Model ID:" model_id
+		done
+
+		# Base URL
+		read -rp "Please enter Base URL (eg: https://api.xxx.com/v1):" base_url
+		while [[ -z "$base_url" ]]; do
+			echo "❌ Base URL cannot be empty"
+			read -rp "Please enter Base URL:" base_url
+		done
+
+		# API Key (hidden input)
+		read -rsp "Please enter API Key (input will not be displayed):" api_key
+		echo
+		while [[ -z "$api_key" ]]; do
+			echo "❌ API Key cannot be empty"
+			read -rsp "Please enter API Key:" api_key
+			echo
+		done
+
+		echo
+		echo "====== Confirmation ======"
+		echo "Provider : $provider_name"
+		echo "Model ID : $model_id"
+		echo "Base URL : $base_url"
+		echo "API Key  : ${api_key:0:8}****"
+		echo "======================"
+
+		read -rp "Confirm to add? (y/N):" confirm
+		if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+			echo "❎ Canceled"
+			return 1
+		fi
+
+		echo
+		add-openclaw-provider-and-switch \
+			"$provider_name" \
+			"$model_id" \
+			"$base_url" \
+			"$api_key"
+
+		break_end
+	}
+
+
+
 	change_model() {
-		printf "Please enter the model name to set (e.g. openrouter/openai/gpt-4o):"
+		send_stats "Change model"
+		echo "All models:"
+		openclaw models list --all
+		echo "Current model:"
+		openclaw models list
+		printf "Please enter the model name to set (e.g. openrouter/openai/gpt-4o) (enter 0 to exit):"
 		read model
+
+		# Check if 0 is entered to exit
+		if [ "$model" = "0" ]; then
+			echo "The operation has been cancelled."
+			return 0  # 正常退出函数
+		fi
+
+		# Verify input is empty
+		if [ -z "$model" ]; then
+			echo "Error: Model name cannot be empty. Please try again."
+			return 1
+		fi
+
 		echo "Switch model to$model"
 		openclaw models set "$model"
 		break_end
 	}
 
 
+
+
+	install_plugin() {
+
+		send_stats "Install plugin"
+
+		echo "All plugins"
+		openclaw plugins list
+		# Output a list of recommended practical plug-ins for users to copy
+		echo "Recommended practical plug-ins (you can directly copy the name input):"
+		echo "@openclaw/voice-call # Enable voice call function, support Twilio integration"
+		echo "@openclaw/matrix # Provide message channel integration for the Matrix protocol"
+		echo "@openclaw/nostr # Support message channel of Nostr protocol"
+		echo "@adongguo/openclaw-dingtalk # Integrated DingTalk message channel"
+		echo "@openclaw/msteams # Add Microsoft Teams support"
+
+		# Prompt user for plugin name
+		echo -n "Please enter the name of the plug-in to be installed (for example: @xzq-xu/feishu Feishu plug-in) (enter 0 to exit):"
+		read plugin_name
+
+		if [ "$plugin_name" = "0" ]; then
+			echo "The operation has been cancelled."
+			return 0  # 正常退出函数
+		fi
+
+		# Verify input is empty
+		if [ -z "$plugin_name" ]; then
+			echo "Error: Plugin name cannot be empty. Please try again."
+			return 1
+		fi
+
+		# Execute installation command
+		echo "Installing plugin:$plugin_name"
+		openclaw plugins install "$plugin_name"
+		start_tmux
+
+		# Check command execution results
+		if [ $? -eq 0 ]; then
+			echo "plug-in$plugin_nameInstallation successful."
+		else
+			echo "Installation failed. Please check that the plugin name is correct, or refer to the OpenClaw documentation to troubleshoot the issue."
+		fi
+
+		break_end
+	}
+
+
+	install_skill() {
+		send_stats "Installation skills"
+
+		echo "All skills"
+		openclaw skills list
+		# Output a list of recommended practical skills for users to copy
+		echo "Recommended practical skills (you can directly copy the name and enter it):"
+		echo "github-integration #Manage GitHub Issues and Pull Requests, support Webhook"
+		echo "notion-integration # Manipulate Notion database and pages"
+		echo "apple-notes # Manage Apple Notes for macOS/iOS"
+		echo "home-assistant # Control smart home via Home Assistant Hub"
+		echo "agent-browser # Headless browser automation using Playwright"
+
+		# Prompt user to enter skill name
+		echo -n "Please enter the name of the skill to be installed (for example: github-integration) (enter 0 to exit):"
+		read skill_name
+
+		if [ "$skill_name" = "0" ]; then
+			echo "The operation has been cancelled."
+			return 0  # 正常退出函数
+		fi
+
+		# Verify input is empty
+		if [ -z "$skill_name" ]; then
+			echo "Error: Skill name cannot be empty. Please try again."
+			return 1
+		fi
+
+		# Execute installation command
+		echo "Installing skills:$skill_name"
+		openclaw skills install "$skill_name"
+		start_tmux
+
+		# Check command execution results
+		if [ $? -eq 0 ]; then
+			echo "Skill$skill_nameInstallation successful."
+		else
+			echo "Installation failed. Please check that the skill name is correct, or refer to the OpenClaw documentation to troubleshoot the issue."
+		fi
+
+		break_end
+	}
+
+
+
 	change_tg_bot_code() {
-		printf "Please enter the connection code received by the TG robot (for example, Pairing code: NYA99R2F:"
+		send_stats "Robot docking"
+		printf "Please enter the connection code received by the TG robot (for example, Pairing code: NYA99R2F) (enter 0 to exit):"
 		read code
+
+		# Check if 0 is entered to exit
+		if [ "$code" = "0" ]; then
+			echo "The operation has been cancelled."
+			return 0  # 正常退出函数
+		fi
+
+		# Verify input is empty
+		if [ -z "$code" ]; then
+			echo "Error: Connection code cannot be empty. Please try again."
+			return 1
+		fi
+
 		openclaw pairing approve telegram $code
 		break_end
 	}
 
 	update_moltbot() {
 		echo "Update OpenClaw..."
-		openclaw update --restart
+		send_stats "Update OpenClaw..."
+		curl -fsSL https://openclaw.ai/install.sh | bash
+		openclaw gateway stop
+		start_tmux
 		add_app_id
 		echo "Update completed"
 		break_end
@@ -9709,8 +10036,11 @@ moltbot_menu() {
 
 	uninstall_moltbot() {
 		echo "Uninstall OpenClaw..."
+		send_stats "Uninstall OpenClaw..."
 		openclaw uninstall
 		npm uninstall -g openclaw
+		crontab -l 2>/dev/null | grep -v "s gateway" | crontab -
+		hash -r
 		sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
 		echo "Uninstall completed"
 		break_end
@@ -9727,19 +10057,22 @@ moltbot_menu() {
 			3) stop_bot ;;
 			4) view_logs ;;
 			5) change_model ;;
-			6) change_tg_bot_code ;;
-			7) update_moltbot ;;
-			8) uninstall_moltbot ;;
+			6) add-openclaw-provider-interactive ;;
+			7) change_tg_bot_code ;;
+			8) install_plugin ;;
+			9) install_skill ;;
+			10)
+				send_stats "Edit the OpenClaw configuration file"
+				install nano
+				nano ~/.openclaw/openclaw.json
+				;;
+			11) update_moltbot ;;
+			12) uninstall_moltbot ;;
 			*) break ;;
 		esac
 	done
 
 }
-
-
-
-
-
 
 
 
@@ -14362,7 +14695,7 @@ linux_Settings() {
 			echo "python version management"
 			echo "Video introduction: https://www.bilibili.com/video/BV1Pm42157cK?t=0.1"
 			echo "---------------------------------------"
-			echo "This function can seamlessly install any version officially supported by python!"
+			echo "This function can seamlessly install any version officially supported by Python!"
 			local VERSION=$(python3 -V 2>&1 | awk '{print $2}')
 			echo -e "Current python version number:${gl_huang}$VERSION${gl_bai}"
 			echo "------------"
@@ -15671,7 +16004,7 @@ run_commands_on_servers() {
 		local username=${SERVER_ARRAY[i+3]}
 		local password=${SERVER_ARRAY[i+4]}
 		echo
-		echo -e "${gl_huang}connect to$name ($hostname)...${gl_bai}"
+		echo -e "${gl_huang}Connect to$name ($hostname)...${gl_bai}"
 		# sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
 		sshpass -p "$password" ssh -t -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
 	done
@@ -15822,7 +16155,7 @@ echo "------------------------"
 echo -e "${gl_zi}V.PS 6.9 dollars per month Tokyo Softbank 2 cores 1G memory 20G hard drive 1T traffic per month${gl_bai}"
 echo -e "${gl_bai}URL: https://vps.hosting/cart/tokyo-cloud-kvm-vps/?id=148&?affid=1355&?affid=1355${gl_bai}"
 echo "------------------------"
-echo -e "${gl_kjlan}More popular VPS offers${gl_bai}"
+echo -e "${gl_kjlan}More popular VPS deals${gl_bai}"
 echo -e "${gl_bai}Website: https://kejilion.pro/topvps/${gl_bai}"
 echo "------------------------"
 echo ""

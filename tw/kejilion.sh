@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.3.7"
+sh_v="4.3.8"
 
 
 gl_hui='\e[37m'
@@ -9588,7 +9588,33 @@ linux_ldnmp() {
 moltbot_menu() {
 	local app_id="114"
 
-	send_stats "clawdbot/moltbot安裝"
+	send_stats "clawdbot/moltbot管理"
+
+	check_openclaw_update() {
+		# 先檢查 NPM 是否可用
+		if ! command -v npm >/dev/null 2>&1; then
+			return 1
+		fi
+
+		# 使用 NPM 查詢本地版本，並去除前綴（如 openclaw@）
+		local_version=$(npm list -g openclaw --depth=0 | grep openclaw | awk '{print $NF}' | sed 's/^.*@//' 2>/dev/null)
+		if [ -z "$local_version" ]; then
+			return 1
+		fi
+
+		# 使用 NPM 查詢遠程版本
+		remote_version=$(npm view openclaw version 2>/dev/null)
+		if [ -z "$remote_version" ]; then
+			return 1
+		fi
+
+		if [ "$local_version" != "$remote_version" ]; then
+			echo "${gl_huang}檢測到新版本:$remote_version${gl_bai}"
+		else
+			echo "${gl_lv}當前版本已是最新:$local_version${gl_bai}"
+		fi
+	}
+
 	get_install_status() {
 		if command -v openclaw >/dev/null 2>&1; then
 			echo "${gl_lv}已安裝${gl_bai}"
@@ -9605,26 +9631,33 @@ moltbot_menu() {
 		fi
 	}
 
-
 	show_menu() {
+
+
 		clear
 
 		local install_status=$(get_install_status)
 		local running_status=$(get_running_status)
+		local update_message=$(check_openclaw_update)
+
 		echo "======================================="
 		echo -e "ClawdBot > MoltBot > OpenClaw 管理"
-		echo -e "$install_status $running_status"
+		echo -e "$install_status $running_status $update_message"
 		echo "======================================="
-		echo "1. 安裝"
-		echo "2. 啟動"
-		echo "3. 停止"
+		echo "1.  安裝"
+		echo "2.  啟動"
+		echo "3.  停止"
 		echo "--------------------"
-		echo "4. 日誌查看"
-		echo "5. 換模型"
-		echo "6. TG輸入連接碼"
+		echo "4.  日誌查看"
+		echo "5.  換模型"
+		echo "6.  加新模型API"
+		echo "7.  TG輸入連接碼"
+		echo "8.  安裝插件（如：飛書）"
+		echo "9.  安裝技能（skills）"
+		echo "10. 編輯主配置文件"
 		echo "--------------------"
-		echo "7. 更新"
-		echo "8. 卸載"
+		echo "11. 更新"
+		echo "12. 卸載"
 		echo "--------------------"
 		echo "0. 返回上一級選單"
 		echo "--------------------"
@@ -9634,6 +9667,7 @@ moltbot_menu() {
 
 	start_tmux() {
 		install tmux
+		openclaw gateway stop
 		tmux kill-session -t gateway > /dev/null 2>&1
 		tmux new -d -s gateway "openclaw gateway"
 		check_crontab_installed
@@ -9644,17 +9678,20 @@ moltbot_menu() {
 
 	install_moltbot() {
 		echo "開始安裝 OpenClaw..."
+		send_stats "開始安裝 OpenClaw..."
+
+		if command -v dnf &>/dev/null; then
+			dnf update -y
+			dnf groupinstall -y "Development Tools"
+			dnf install -y cmake
+		fi
+
 		country=$(curl -s ipinfo.io/country)
 		if [[ "$country" == "CN" || "$country" == "HK" ]]; then
 			pnpm config set registry https://registry.npmmirror.com
+			npm config set registry https://registry.npmmirror.com
 		fi
-		curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
-		ln -s /root/.local/bin/openclaw /usr/local/bin/openclaw
-		source ~/.bashrc
-		source ~/.profile
-		openclaw doctor --fix
-		openclaw onboard --install-daemon
-		openclaw gateway stop
+		curl -fsSL https://openclaw.ai/install.sh | bash
 		start_tmux
 		add_app_id
 		break_end
@@ -9664,13 +9701,14 @@ moltbot_menu() {
 
 	start_bot() {
 		echo "啟動 OpenClaw..."
+		send_stats "啟動 OpenClaw..."
 		start_tmux
 		break_end
 	}
 
 	stop_bot() {
 		echo "停止 OpenClaw..."
-		install tmux
+		send_stats "停止 OpenClaw..."
 		openclaw gateway stop
 		tmux kill-session -t gateway > /dev/null 2>&1
 		break_end
@@ -9678,29 +9716,318 @@ moltbot_menu() {
 
 	view_logs() {
 		echo "查看 OpenClaw 日誌，Ctrl+C 退出"
+		send_stats "查看 OpenClaw 日誌"
 		openclaw logs
 		break_end
 	}
 
+
+
+	add-openclaw-provider() {
+		local config_file="${HOME}/.openclaw/openclaw.json"
+		local provider_name="$1"
+		local models_id="$2"
+		local base_url="$3"
+		local api_key="$4"
+
+		echo "=== 添加自定義 OpenAI 兼容模型到 OpenClaw ==="
+		echo "Provider: $provider_name"
+		echo "Model ID: $models_id"
+		echo "Base URL: $base_url"
+		echo "API Key: ${api_key:0:8}****"
+
+		# 檢查參數
+		if [[ -z "$provider_name" || -z "$models_id" || -z "$base_url" || -z "$api_key" ]]; then
+			echo "錯誤：參數不能為空​​！"
+			echo "用法: add-openclaw-provider <provider> <model-id> <base-url> <api-key>"
+			return 1
+		fi
+
+		# 檢查 jq
+		if ! command -v jq &> /dev/null; then
+			echo "安裝 jq: apt update && apt install -y jq"
+			apt update && apt install -y jq || {
+				echo "安裝 jq 失敗"
+				return 1
+			}
+		fi
+
+		# 備份原文件
+		if [[ -f "$config_file" ]]; then
+			cp "$config_file" "${config_file}.bak.$(date +%s)"
+			echo "備份:${config_file}.bak.*"
+		fi
+
+
+		jq --arg prov "$provider_name" \
+		   --arg url "$base_url" \
+		   --arg key "$api_key" \
+		   --arg mid "$models_id" \
+		'
+		.models |= (
+			(. // { mode: "merge", providers: {} })
+			| .mode = "merge"
+			| .providers[$prov] = {
+				baseUrl: $url,
+				apiKey: $key,
+				api: "openai-completions",
+				models: [
+					{
+						id: $mid,
+						name: ($prov + " / " + $mid),
+						input: ["text"],
+						contextWindow: 131072,
+						maxTokens: 8192,
+						cost: {
+							input: 0.14,
+							output: 0.28,
+							cacheRead: 0,
+							cacheWrite: 0
+						}
+					}
+				]
+			}
+		)
+		' "$config_file" > "${config_file}.tmp" && mv "${config_file}.tmp" "$config_file"
+
+		if [[ $? -eq 0 ]]; then
+			echo "✅ 已添加 provider:$provider_name"
+			echo "📦 模型引用方式:$provider_name/$models_id"
+			echo "🔧 設置默認模型:"
+			echo "    openclaw config patch '{\"agents.defaults.model.primary\": \"$provider_name/$models_id\"}'"
+			echo "🔄 重啟網關:"
+			echo "    openclaw gateway restart"
+		else
+			echo "❌ 添加失敗，檢查 jq 語法"
+			return 1
+		fi
+	}
+
+	# 可選：自動設置默認並重啟
+	add-openclaw-provider-and-switch() {
+		install jq
+
+		add-openclaw-provider "$1" "$2" "$3" "$4"
+
+		if [[ $? -eq 0 ]]; then
+			echo "🔄 設置默認模型並重啟網關..."
+			openclaw models set "$1/$2"
+			start_tmux
+			echo "✅ 完成！當前默認模型:$1/$2"
+			openclaw status | grep -A2 "Sessions"
+		fi
+	}
+
+
+
+
+
+	add-openclaw-provider-interactive() {
+		send_stats "添加API"
+		echo "=== 交互式添加 OpenClaw Provider ==="
+
+		# Provider 名稱
+		read -rp "請輸入 Provider 名稱 (如: deepseek):" provider_name
+		while [[ -z "$provider_name" ]]; do
+			echo "❌ Provider 名稱不能為空"
+			read -rp "請輸入 Provider 名稱:" provider_name
+		done
+
+		# Model ID
+		read -rp "請輸入 Model ID (如: deepseek-chat):" model_id
+		while [[ -z "$model_id" ]]; do
+			echo "❌ Model ID 不能為空"
+			read -rp "請輸入 Model ID:" model_id
+		done
+
+		# Base URL
+		read -rp "請輸入 Base URL (如: https://api.xxx.com/v1):" base_url
+		while [[ -z "$base_url" ]]; do
+			echo "❌ Base URL 不能為空"
+			read -rp "請輸入 Base URL:" base_url
+		done
+
+		# API Key（隱藏輸入）
+		read -rsp "請輸入 API Key (輸入不顯示):" api_key
+		echo
+		while [[ -z "$api_key" ]]; do
+			echo "❌ API Key 不能為空"
+			read -rsp "請輸入 API Key:" api_key
+			echo
+		done
+
+		echo
+		echo "====== 確認信息 ======"
+		echo "Provider : $provider_name"
+		echo "Model ID : $model_id"
+		echo "Base URL : $base_url"
+		echo "API Key  : ${api_key:0:8}****"
+		echo "======================"
+
+		read -rp "確認添加？ (y/N):" confirm
+		if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+			echo "❎ 已取消"
+			return 1
+		fi
+
+		echo
+		add-openclaw-provider-and-switch \
+			"$provider_name" \
+			"$model_id" \
+			"$base_url" \
+			"$api_key"
+
+		break_end
+	}
+
+
+
 	change_model() {
-		printf "請輸入要設置的模型名稱 (例如 openrouter/openai/gpt-4o):"
+		send_stats "換模型"
+		echo "所有模型:"
+		openclaw models list --all
+		echo "當前模型:"
+		openclaw models list
+		printf "請輸入要設置的模型名稱 (例如 openrouter/openai/gpt-4o)（輸入 0 退出）："
 		read model
+
+		# 檢查是否輸入 0 以退出
+		if [ "$model" = "0" ]; then
+			echo "操作已取消。"
+			return 0  # 正常退出函数
+		fi
+
+		# 驗證輸入是否為空
+		if [ -z "$model" ]; then
+			echo "錯誤：模型名稱不能為空。請重試。"
+			return 1
+		fi
+
 		echo "切換模型為$model"
 		openclaw models set "$model"
 		break_end
 	}
 
 
+
+
+	install_plugin() {
+
+		send_stats "安裝插件"
+
+		echo "所有插件"
+		openclaw plugins list
+		# 輸出推薦的實用插件列表，便於用戶複製
+		echo "推薦的實用插件（可直接複製名稱輸入）："
+		echo "@openclaw/voice-call    # 啟用語音通話功能，支持 Twilio 集成"
+		echo "@openclaw/matrix        # 為 Matrix 協議提供消息通道集成"
+		echo "@openclaw/nostr         # 支持 Nostr 協議的消息通道"
+		echo "@adongguo/openclaw-dingtalk  # 集成釘釘消息通道"
+		echo "@openclaw/msteams       # 添加 Microsoft Teams 支持"
+
+		# 提示用戶輸入插件名稱
+		echo -n "請輸入要安裝的插件名稱（例如：@xzq-xu/feishu 飛書插件）（輸入 0 退出）："
+		read plugin_name
+
+		if [ "$plugin_name" = "0" ]; then
+			echo "操作已取消。"
+			return 0  # 正常退出函数
+		fi
+
+		# 驗證輸入是否為空
+		if [ -z "$plugin_name" ]; then
+			echo "錯誤：插件名稱不能為空。請重試。"
+			return 1
+		fi
+
+		# 執行安裝命令
+		echo "正在安裝插件：$plugin_name"
+		openclaw plugins install "$plugin_name"
+		start_tmux
+
+		# 檢查命令執行結果
+		if [ $? -eq 0 ]; then
+			echo "插件$plugin_name安裝成功。"
+		else
+			echo "安裝失敗。請檢查插件名稱是否正確，或參考 OpenClaw 文檔排查問題。"
+		fi
+
+		break_end
+	}
+
+
+	install_skill() {
+		send_stats "安裝技能"
+
+		echo "所有技能"
+		openclaw skills list
+		# 輸出推薦的實用技能列表，便於用戶複製
+		echo "推薦的實用技能（可直接複製名稱輸入）："
+		echo "github-integration    # 管理 GitHub Issues 和 Pull Requests，支持 Webhook"
+		echo "notion-integration    # 操作 Notion 數據庫和頁面"
+		echo "apple-notes           # 管理 macOS/iOS 的 Apple Notes"
+		echo "home-assistant        # 通過 Home Assistant Hub 控制智能家居"
+		echo "agent-browser         # 使用 Playwright 進行無頭瀏覽器自動化"
+
+		# 提示用戶輸入技能名稱
+		echo -n "請輸入要安裝的技能名稱（例如：github-integration）（輸入 0 退出）："
+		read skill_name
+
+		if [ "$skill_name" = "0" ]; then
+			echo "操作已取消。"
+			return 0  # 正常退出函数
+		fi
+
+		# 驗證輸入是否為空
+		if [ -z "$skill_name" ]; then
+			echo "錯誤：技能名稱不能為空。請重試。"
+			return 1
+		fi
+
+		# 執行安裝命令
+		echo "正在安裝技能：$skill_name"
+		openclaw skills install "$skill_name"
+		start_tmux
+
+		# 檢查命令執行結果
+		if [ $? -eq 0 ]; then
+			echo "技能$skill_name安裝成功。"
+		else
+			echo "安裝失敗。請檢查技能名稱是否正確，或參考 OpenClaw 文檔排查問題。"
+		fi
+
+		break_end
+	}
+
+
+
 	change_tg_bot_code() {
-		printf "請輸入TG機器人收到的連接碼 (例如 Pairing code: NYA99R2F:"
+		send_stats "機器人對接"
+		printf "請輸入TG機器人收到的連接碼 (例如 Pairing code: NYA99R2F)（輸入 0 退出）："
 		read code
+
+		# 檢查是否輸入 0 以退出
+		if [ "$code" = "0" ]; then
+			echo "操作已取消。"
+			return 0  # 正常退出函数
+		fi
+
+		# 驗證輸入是否為空
+		if [ -z "$code" ]; then
+			echo "錯誤：連接碼不能為空。請重試。"
+			return 1
+		fi
+
 		openclaw pairing approve telegram $code
 		break_end
 	}
 
 	update_moltbot() {
 		echo "更新 OpenClaw..."
-		openclaw update --restart
+		send_stats "更新 OpenClaw..."
+		curl -fsSL https://openclaw.ai/install.sh | bash
+		openclaw gateway stop
+		start_tmux
 		add_app_id
 		echo "更新完成"
 		break_end
@@ -9709,8 +10036,11 @@ moltbot_menu() {
 
 	uninstall_moltbot() {
 		echo "卸載 OpenClaw..."
+		send_stats "卸載 OpenClaw..."
 		openclaw uninstall
 		npm uninstall -g openclaw
+		crontab -l 2>/dev/null | grep -v "s gateway" | crontab -
+		hash -r
 		sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
 		echo "卸載完成"
 		break_end
@@ -9727,19 +10057,22 @@ moltbot_menu() {
 			3) stop_bot ;;
 			4) view_logs ;;
 			5) change_model ;;
-			6) change_tg_bot_code ;;
-			7) update_moltbot ;;
-			8) uninstall_moltbot ;;
+			6) add-openclaw-provider-interactive ;;
+			7) change_tg_bot_code ;;
+			8) install_plugin ;;
+			9) install_skill ;;
+			10)
+				send_stats "編輯 OpenClaw 配置文件"
+				install nano
+				nano ~/.openclaw/openclaw.json
+				;;
+			11) update_moltbot ;;
+			12) uninstall_moltbot ;;
 			*) break ;;
 		esac
 	done
 
 }
-
-
-
-
-
 
 
 
