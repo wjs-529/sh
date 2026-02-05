@@ -10136,10 +10136,12 @@ moltbot_menu() {
 			8) install_plugin ;;
 			9) install_skill ;;
 			10) nano_openclaw_json ;;
-			11) clawdbot onboard --install-daemon
+			11) send_stats "初始化配置向导"
+				clawdbot onboard --install-daemon
 				break_end
 				;;
-			12) clawdbot doctor --fix
+			12) send_stats "健康检测与修复"
+				clawdbot doctor --fix
 				break_end
 			 	;;
 			13) update_moltbot ;;
