@@ -9999,7 +9999,11 @@ moltbot_menu() {
 
 			# 3. 执行安装命令
 			echo "正在安装插件：$plugin_name ..."
-			openclaw plugins install "$plugin_name"
+			# 1. 先尝试通过 npm 安装（如果它是外部插件）
+			npm install -g "$plugin_name"
+
+			# 2. 尝试启用该插件
+			openclaw plugins enable "$plugin_name"
 
 			# 检查命令执行结果 ($? 获取上一条命令的状态码)
 			if [ $? -eq 0 ]; then
@@ -10012,6 +10016,10 @@ moltbot_menu() {
 			break_end
 		done
 	}
+
+
+
+
 
 
 	install_skill() {
@@ -10061,7 +10069,7 @@ moltbot_menu() {
 
 			# 3. 执行安装命令
 			echo "正在安装技能：$skill_name ..."
-			openclaw skills install "$skill_name"
+			npx clawhub install "$skill_name"
 
 			# 获取上一条命令的退出状态
 			if [ $? -eq 0 ]; then
