@@ -10323,6 +10323,8 @@ moltbot_menu() {
 
 	# 主菜单
 	openclaw_webui_menu() {
+
+		send_stats "WebUI访问与设置"
 		while true; do
 			clear
 			openclaw_show_webui_addr
