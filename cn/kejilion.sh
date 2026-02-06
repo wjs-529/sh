@@ -9925,9 +9925,7 @@ moltbot_menu() {
 			echo "当前模型:"
 			openclaw models list
 			echo "----------------"
-
-			printf "请输入要设置的模型名称 (例如 openrouter/openai/gpt-4o)（输入 0 退出）： "
-			read -e model
+			read -e -p "请输入要设置的模型名称 (例如 openrouter/openai/gpt-4o)（输入 0 退出）： " model
 
 			# 1. 检查是否输入 0 以退出
 			if [ "$model" = "0" ]; then
@@ -9977,8 +9975,7 @@ moltbot_menu() {
 			echo "----------------------------------------"
 
 			# 提示用户输入插件名称
-			printf "请输入要安装的插件名称（输入 0 退出）： "
-			read -e plugin_name
+			read -e -p "请输入要安装的插件名称（输入 0 退出）： " plugin_name
 
 			# 1. 检查是否输入 0 以退出
 			if [ "$plugin_name" = "0" ]; then
@@ -10031,8 +10028,7 @@ moltbot_menu() {
 			echo "----------------------------------------"
 
 			# 提示用户输入技能名称
-			printf "请输入要安装的技能名称（输入 0 退出）： "
-			read -e skill_name
+			read -e -p "请输入要安装的技能名称（输入 0 退出）： " skill_name
 
 			# 1. 检查是否输入 0 以退出
 			if [ "$skill_name" = "0" ]; then
@@ -10069,8 +10065,7 @@ moltbot_menu() {
 
 	change_tg_bot_code() {
 		send_stats "机器人对接"
-		printf "请输入TG机器人收到的连接码 (例如 Pairing code: NYA99R2F)（输入 0 退出）： "
-		read -e code
+		read -e -p "请输入TG机器人收到的连接码 (例如 Pairing code: NYA99R2F)（输入 0 退出）： " code
 
 		# 检查是否输入 0 以退出
 		if [ "$code" = "0" ]; then
