@@ -9967,11 +9967,18 @@ moltbot_menu() {
 
 			# 输出推荐的实用插件列表，便于用户复制
 			echo "推荐的实用插件（可直接复制名称输入）："
-			echo "@openclaw/voice-call         # 语音通话 (Twilio)"
-			echo "@openclaw/matrix             # Matrix 协议"
-			echo "@openclaw/nostr              # Nostr 协议"
-			echo "@adongguo/openclaw-dingtalk  # 钉钉集成"
-			echo "@openclaw/msteams            # Microsoft Teams"
+			echo "feishu                # 飞书/Lark 集成 (当前已加载 ✓)"
+			echo "telegram              # Telegram 机器人集成 (当前已加载 ✓)"
+			echo "memory-core           # 核心记忆增强：基于文件的上下文搜索 (当前已加载 ✓)"
+			echo "@openclaw/slack       # Slack 频道与 DMs 深度连接"
+			echo "@openclaw/bluebubbles # iMessage 桥接 (macOS 用户首选)"
+			echo "@openclaw/msteams     # Microsoft Teams 企业通讯集成"
+			echo "@openclaw/voice-call  # 语音通话插件 (基于 Twilio 等后端)"
+			echo "@openclaw/discord     # Discord 频道自动化管理"
+			echo "@openclaw/nostr       # Nostr 协议：隐私安全加密聊天"
+			echo "lobster               # 审批工作流：带有人工干预的自动任务"
+			echo "memory-lancedb        # 长期记忆增强：基于向量数据库的精准召回"
+			echo "copilot-proxy         # GitHub Copilot 代理接入增强"
 			echo "----------------------------------------"
 
 			# 提示用户输入插件名称
@@ -10020,11 +10027,20 @@ moltbot_menu() {
 
 			# 输出推荐的实用技能列表
 			echo "推荐的实用技能（可直接复制名称输入）："
-			echo "github-integration    # 管理 GitHub Issues/PR"
-			echo "notion-integration    # 操作 Notion 数据库"
-			echo "apple-notes           # 管理 Apple Notes"
-			echo "home-assistant        # 控制智能家居"
-			echo "agent-browser         # Playwright 浏览器自动化"
+			echo "github             # 管理 GitHub Issues/PR/CI (gh CLI)"
+			echo "notion             # 操作 Notion 页面、数据库和块"
+			echo "apple-notes        # macOS 原生笔记管理 (创建/编辑/搜索)"
+			echo "apple-reminders    # macOS 提醒事项管理 (待办清单)"
+			echo "1password          # 自动化读取和注入 1Password 密钥"
+			echo "gog                # Google Workspace (Gmail/云盘/文档) 全能助手"
+			echo "things-mac         # 深度整合 Things 3 任务管理"
+			echo "bluebubbles        # 通过 BlueBubbles 完美收发 iMessage"
+			echo "himalaya           # 终端邮件管理 (IMAP/SMTP 强力工具)"
+			echo "summarize          # 网页/播客/YouTube 视频内容一键总结"
+			echo "openhue            # 控制 Philips Hue 智能灯光场景"
+			echo "video-frames       # 视频抽帧与短片剪辑 (ffmpeg 驱动)"
+			echo "openai-whisper     # 本地音频转文字 (离线隐私保护)"
+			echo "coding-agent       # 自动运行 Claude Code/Codex 等编程助手"
 			echo "----------------------------------------"
 
 			# 提示用户输入技能名称
