@@ -7187,8 +7187,7 @@ linux_info() {
 	local tcp_count=$(ss -t | wc -l)
 	local udp_count=$(ss -u | wc -l)
 
-
-	echo ""
+	clear
 	echo -e "系统信息查询"
 	echo -e "${gl_kjlan}-------------"
 	echo -e "${gl_kjlan}主机名:         ${gl_bai}$hostname"
@@ -9621,19 +9620,19 @@ moltbot_menu() {
 	send_stats "clawdbot/moltbot管理"
 
 	check_openclaw_update() {
-		# 先检查 NPM 是否可用
 		if ! command -v npm >/dev/null 2>&1; then
 			return 1
 		fi
 
-		# 使用 NPM 查询本地版本，并去除前缀（如 openclaw@）
-		local_version=$(npm list -g openclaw --depth=0 | grep openclaw | awk '{print $NF}' | sed 's/^.*@//' 2>/dev/null)
+		# 加上 --no-update-notifier，并确保错误重定向位置正确
+		local_version=$(npm list -g openclaw --depth=0 --no-update-notifier 2>/dev/null | grep openclaw | awk '{print $NF}' | sed 's/^.*@//')
+
 		if [ -z "$local_version" ]; then
 			return 1
 		fi
 
-		# 使用 NPM 查询远程版本
-		remote_version=$(npm view openclaw version 2>/dev/null)
+		remote_version=$(npm view openclaw version --no-update-notifier 2>/dev/null)
+
 		if [ -z "$remote_version" ]; then
 			return 1
 		fi
