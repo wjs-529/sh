@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.3.8"
+sh_v="4.3.9"
 
 
 gl_hui='\e[37m'
@@ -884,7 +884,7 @@ close_port() {
 		iptables -D INPUT -p tcp --dport $port -j ACCEPT 2>/dev/null
 		iptables -D INPUT -p udp --dport $port -j ACCEPT 2>/dev/null
 
-		# Add a shutdown rule
+		# Add shutdown rule
 		if ! iptables -C INPUT -p tcp --dport $port -j DROP 2>/dev/null; then
 			iptables -I INPUT 1 -p tcp --dport $port -j DROP
 		fi
@@ -2667,7 +2667,7 @@ clear_container_rules() {
 		iptables -D DOCKER-USER -p tcp -d "$container_ip" -j DROP
 	fi
 
-	# Clear the rules that allow specified IPs
+	# Clear the rules that allow the specified IP
 	if iptables -C DOCKER-USER -p tcp -s "$allowed_ip" -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -D DOCKER-USER -p tcp -s "$allowed_ip" -d "$container_ip" -j ACCEPT
 	fi
@@ -2686,7 +2686,7 @@ clear_container_rules() {
 		iptables -D DOCKER-USER -p udp -d "$container_ip" -j DROP
 	fi
 
-	# Clear the rules that allow specified IPs
+	# Clear the rules that allow the specified IP
 	if iptables -C DOCKER-USER -p udp -s "$allowed_ip" -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -D DOCKER-USER -p udp -s "$allowed_ip" -d "$container_ip" -j ACCEPT
 	fi
@@ -2936,7 +2936,7 @@ while true; do
 			rm -f /home/docker/${docker_name}_port.conf
 
 			sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 			send_stats "uninstall$docker_name"
 			;;
 
@@ -3523,7 +3523,7 @@ ldnmp_Proxy_backend() {
 list_stream_services() {
 
 	STREAM_DIR="/home/web/stream.d"
-	printf "%-25s %-18s %-25s %-20s\n" "Service name" "Communication type" "Local address" "Backend address"
+	printf "%-25s %-18s %-25s %-20s\n" "Service name" "Communication type" "local address" "Backend address"
 
 	if [ -z "$(ls -A "$STREAM_DIR")" ]; then
 		return
@@ -3652,20 +3652,20 @@ ldnmp_Proxy_backend_stream() {
 	echo "Start deployment$webname"
 
 	# Get agent name
-	read -rp "Please enter a proxy forwarding name (e.g. mysql_proxy):" proxy_name
+	read -erp "Please enter a proxy forwarding name (e.g. mysql_proxy):" proxy_name
 	if [ -z "$proxy_name" ]; then
 		echo "Name cannot be empty"; return 1
 	fi
 
 	# Get listening port
-	read -rp "Please enter the local listening port (such as 3306):" listen_port
+	read -erp "Please enter the local listening port (such as 3306):" listen_port
 	if ! [[ "$listen_port" =~ ^[0-9]+$ ]]; then
 		echo "Port must be numeric"; return 1
 	fi
 
 	echo "Please select agreement type:"
 	echo "1. TCP    2. UDP"
-	read -rp "Please enter the serial number [1-2]:" proto_choice
+	read -erp "Please enter the serial number [1-2]:" proto_choice
 
 	case "$proto_choice" in
 		1) proto="tcp"; listen_suffix="" ;;
@@ -4313,7 +4313,7 @@ frps_panel() {
 				close_port 8055 8056
 
 				sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-				echo "App has been uninstalled"
+				echo "App uninstalled"
 				;;
 			5)
 				echo "Reverse intranet penetration service into domain name access"
@@ -4410,7 +4410,7 @@ frpc_panel() {
 				close_port 8055
 
 				sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-				echo "App has been uninstalled"
+				echo "App uninstalled"
 				;;
 
 			4)
@@ -4819,10 +4819,12 @@ correct_ssh_config() {
 
 new_ssh_port() {
 
+  local new_port=$1
+
   cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 
-  sed -i 's/^\s*#\?\s*Port/Port/' /etc/ssh/sshd_config
-  sed -i "s/Port [0-9]\+/Port $new_port/g" /etc/ssh/sshd_config
+  sed -i '/^\s*#\?\s*Port\s\+/d' /etc/ssh/sshd_config
+  echo "Port $new_port" >> /etc/ssh/sshd_config
 
   correct_ssh_config
 
@@ -5441,7 +5443,7 @@ dd_xitong() {
 				;;
 
 			  41)
-				send_stats "Reinstall Windows 11"
+				send_stats "Reinstall windows 11"
 				dd_xitong_2
 				bash InstallNET.sh -windows 11 -lang "cn"
 				reboot
@@ -5975,7 +5977,7 @@ restore_defaults() {
 
 # Website building optimization function
 optimize_web_server() {
-	echo -e "${gl_lv}Switch to website construction optimization mode...${gl_bai}"
+	echo -e "${gl_lv}Switch to website building optimization mode...${gl_bai}"
 
 	echo -e "${gl_lv}Optimize file descriptors...${gl_bai}"
 	ulimit -n 65535
@@ -6317,9 +6319,9 @@ send_stats "Command Favorites"
 bash <(curl -l -s ${gh_proxy}raw.githubusercontent.com/byJoey/cmdbox/refs/heads/main/install.sh)
 }
 
-# Create backup
+# Create a backup
 create_backup() {
-	send_stats "Create backup"
+	send_stats "Create a backup"
 	local TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 	# Prompt user for backup directory
@@ -6361,7 +6363,7 @@ create_backup() {
 		echo "- $path"
 	done
 
-	# Create backup
+	# Create a backup
 	echo "Creating backup$BACKUP_NAME..."
 	install tar
 	tar -czvf "$BACKUP_DIR/$BACKUP_NAME" "${BACKUP_PATHS[@]}"
@@ -6504,7 +6506,7 @@ add_connection() {
 				if [[ -z "$line" && "$password_or_key" == *"-----BEGIN"* ]]; then
 					break
 				fi
-				# If it is the first line or you have already started entering the key content, continue adding
+				# If it is the first line or you have already started to enter the key content, continue adding
 				if [[ -n "$line" || "$password_or_key" == *"-----BEGIN"* ]]; then
 					local password_or_key+="${line}"$'\n'
 				fi
@@ -6649,37 +6651,65 @@ list_partitions() {
 	lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT | grep -v "sr\|loop"
 }
 
-# Mount partition
+
+# Persistently mounted partition
 mount_partition() {
 	send_stats "Mount partition"
 	read -e -p "Please enter the name of the partition to be mounted (e.g. sda1):" PARTITION
 
+	DEVICE="/dev/$PARTITION"
+	MOUNT_POINT="/mnt/$PARTITION"
+
 	# Check if the partition exists
-	if ! lsblk -o NAME | grep -w "$PARTITION" > /dev/null; then
+	if ! lsblk -no NAME | grep -qw "$PARTITION"; then
 		echo "The partition does not exist!"
-		return
+		return 1
 	fi
 
-	# Check whether the partition is mounted
-	if lsblk -o MOUNTPOINT | grep -w "$PARTITION" > /dev/null; then
+	# Check if it is mounted
+	if mount | grep -qw "$DEVICE"; then
 		echo "The partition has been mounted!"
-		return
+		return 1
+	fi
+
+	# Get UUID
+	UUID=$(blkid -s UUID -o value "$DEVICE")
+	if [ -z "$UUID" ]; then
+		echo "Unable to get UUID!"
+		return 1
+	fi
+
+	# Get file system type
+	FSTYPE=$(blkid -s TYPE -o value "$DEVICE")
+	if [ -z "$FSTYPE" ]; then
+		echo "Unable to get file system type!"
+		return 1
 	fi
 
 	# Create mount point
-	MOUNT_POINT="/mnt/$PARTITION"
 	mkdir -p "$MOUNT_POINT"
 
-	# Mount partition
-	mount "/dev/$PARTITION" "$MOUNT_POINT"
-
-	if [ $? -eq 0 ]; then
-		echo "Partition mounted successfully:$MOUNT_POINT"
-	else
+	# mount
+	if ! mount "$DEVICE" "$MOUNT_POINT"; then
 		echo "Partition mount failed!"
 		rmdir "$MOUNT_POINT"
+		return 1
 	fi
+
+	echo "The partition was successfully mounted to$MOUNT_POINT"
+
+	# Check /etc/fstab to see if the UUID or mount point already exists
+	if grep -qE "UUID=$UUID|[[:space:]]$MOUNT_POINT[[:space:]]" /etc/fstab; then
+		echo "The partition record already exists in /etc/fstab, skip writing"
+		return 0
+	fi
+
+	# Write to /etc/fstab
+	echo "UUID=$UUID $MOUNT_POINT $FSTYPE defaults,nofail 0 2" >> /etc/fstab
+
+	echo "Written to /etc/fstab to achieve persistent mounting"
 }
+
 
 # Unmount partition
 unmount_partition() {
@@ -6782,7 +6812,7 @@ disk_manager() {
 	send_stats "Hard disk management function"
 	while true; do
 		clear
-		echo "Hard disk partition management"
+		echo "Hard drive partition management"
 		echo -e "${gl_huang}This feature is under internal testing and should not be used in a production environment.${gl_bai}"
 		echo "------------------------"
 		list_partitions
@@ -6852,7 +6882,7 @@ add_task() {
 				if [[ -z "$line" && "$password_or_key" == *"-----BEGIN"* ]]; then
 					break
 				fi
-				# If it is the first line or you have already started entering the key content, continue adding
+				# If it is the first line or you have already started to enter the key content, continue adding
 				if [[ -n "$line" || "$password_or_key" == *"-----BEGIN"* ]]; then
 					password_or_key+="${line}"$'\n'
 				fi
@@ -7157,8 +7187,7 @@ linux_info() {
 	local tcp_count=$(ss -t | wc -l)
 	local udp_count=$(ss -u | wc -l)
 
-
-	echo ""
+	clear
 	echo -e "System information query"
 	echo -e "${gl_kjlan}-------------"
 	echo -e "${gl_kjlan}Hostname:${gl_bai}$hostname"
@@ -7207,7 +7236,7 @@ linux_tools() {
 
   while true; do
 	  clear
-	  # send_stats "Basic tools"
+	  # send_stats "Basic Tools"
 	  echo -e "basic tools"
 
 	  tools=(
@@ -7274,7 +7303,7 @@ linux_tools() {
 	  echo -e "${gl_kjlan}17.  ${gl_bai}git version control system${gl_kjlan}18.  ${gl_bai}opencode AI programming assistant${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}21.  ${gl_bai}The Matrix Screensaver${gl_kjlan}22.  ${gl_bai}Running train screensaver"
-	  echo -e "${gl_kjlan}26.  ${gl_bai}Tetris mini game${gl_kjlan}27.  ${gl_bai}Snake mini game"
+	  echo -e "${gl_kjlan}26.  ${gl_bai}俄罗斯方块小游戏                  ${gl_kjlan}27.  ${gl_bai}Snake mini game"
 	  echo -e "${gl_kjlan}28.  ${gl_bai}space invaders mini game"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}31.  ${gl_bai}Install all${gl_kjlan}32.  ${gl_bai}Install all (excluding screensavers and games)${gl_huang}★${gl_bai}"
@@ -8209,7 +8238,7 @@ linux_test() {
 	  echo -e "${gl_kjlan}14.  ${gl_bai}nxtrace fast backhaul test script"
 	  echo -e "${gl_kjlan}15.  ${gl_bai}nxtrace specifies IP backhaul test script"
 	  echo -e "${gl_kjlan}16.  ${gl_bai}ludashi2020 three network line test"
-	  echo -e "${gl_kjlan}17.  ${gl_bai}i-abc multi-function speed test script"
+	  echo -e "${gl_kjlan}17.  ${gl_bai}i-abc multifunctional speed test script"
 	  echo -e "${gl_kjlan}18.  ${gl_bai}NetQuality network quality check script${gl_huang}★${gl_bai}"
 
 	  echo -e "${gl_kjlan}------------------------"
@@ -9591,19 +9620,19 @@ moltbot_menu() {
 	send_stats "clawdbot/moltbot management"
 
 	check_openclaw_update() {
-		# First check if NPM is available
 		if ! command -v npm >/dev/null 2>&1; then
 			return 1
 		fi
 
-		# Use NPM to query the local version and remove the prefix (such as openclaw@)
-		local_version=$(npm list -g openclaw --depth=0 | grep openclaw | awk '{print $NF}' | sed 's/^.*@//' 2>/dev/null)
+		# Add --no-update-notifier and make sure error redirection is in the correct location
+		local_version=$(npm list -g openclaw --depth=0 --no-update-notifier 2>/dev/null | grep openclaw | awk '{print $NF}' | sed 's/^.*@//')
+
 		if [ -z "$local_version" ]; then
 			return 1
 		fi
 
-		# Query remote versions using NPM
-		remote_version=$(npm view openclaw version 2>/dev/null)
+		remote_version=$(npm view openclaw version --no-update-notifier 2>/dev/null)
+
 		if [ -z "$remote_version" ]; then
 			return 1
 		fi
@@ -9655,9 +9684,12 @@ moltbot_menu() {
 		echo "8. Install plug-ins (such as Feishu)"
 		echo "9. Install skills"
 		echo "10. Edit the main configuration file"
+		echo "11. Configuration Wizard"
+		echo "12. Health detection and repair"
+		echo "13. WebUI access and settings"
 		echo "--------------------"
-		echo "11. Update"
-		echo "12. Uninstall"
+		echo "14. Update"
+		echo "15. Uninstall"
 		echo "--------------------"
 		echo "0. Return to the previous menu"
 		echo "--------------------"
@@ -9827,24 +9859,24 @@ moltbot_menu() {
 		echo "=== Add OpenClaw Provider interactively ==="
 
 		# Provider name
-		read -rp "Please enter the Provider name (eg: deepseek):" provider_name
+		read -erp "Please enter the Provider name (eg: deepseek):" provider_name
 		while [[ -z "$provider_name" ]]; do
 			echo "❌ Provider name cannot be empty"
-			read -rp "Please enter Provider name:" provider_name
+			read -erp "Please enter Provider name:" provider_name
 		done
 
 		# Model ID
-		read -rp "Please enter Model ID (eg: deepseek-chat):" model_id
+		read -erp "Please enter Model ID (eg: deepseek-chat):" model_id
 		while [[ -z "$model_id" ]]; do
 			echo "❌ Model ID cannot be empty"
-			read -rp "Please enter Model ID:" model_id
+			read -erp "Please enter Model ID:" model_id
 		done
 
 		# Base URL
-		read -rp "Please enter Base URL (eg: https://api.xxx.com/v1):" base_url
+		read -erp "Please enter Base URL (eg: https://api.xxx.com/v1):" base_url
 		while [[ -z "$base_url" ]]; do
 			echo "❌ Base URL cannot be empty"
-			read -rp "Please enter Base URL:" base_url
+			read -erp "Please enter Base URL:" base_url
 		done
 
 		# API Key (hidden input)
@@ -9864,7 +9896,7 @@ moltbot_menu() {
 		echo "API Key  : ${api_key:0:8}****"
 		echo "======================"
 
-		read -rp "Confirm to add? (y/N):" confirm
+		read -erp "Confirm to add? (y/N):" confirm
 		if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
 			echo "❎ Canceled"
 			return 1
@@ -9884,28 +9916,39 @@ moltbot_menu() {
 
 	change_model() {
 		send_stats "Change model"
-		echo "All models:"
-		openclaw models list --all
-		echo "Current model:"
-		openclaw models list
-		printf "Please enter the model name to set (e.g. openrouter/openai/gpt-4o) (enter 0 to exit):"
-		read model
 
-		# Check if 0 is entered to exit
-		if [ "$model" = "0" ]; then
-			echo "The operation has been cancelled."
-			return 0  # 正常退出函数
-		fi
+		while true; do
+			clear
+			echo "---Model Management ---"
+			echo "All models:"
+			openclaw models list --all
+			echo "----------------"
+			echo "Current model:"
+			openclaw models list
+			echo "----------------"
+			read -e -p "Please enter the model name to set (e.g. openrouter/openai/gpt-4o) (enter 0 to exit):" model
 
-		# Verify input is empty
-		if [ -z "$model" ]; then
-			echo "Error: Model name cannot be empty. Please try again."
-			return 1
-		fi
+			# 1. Check if you entered 0 to exit
+			if [ "$model" = "0" ]; then
+				echo "Operation canceled, exiting..."
+				break  # 跳出 while 循环
 
-		echo "Switch model to$model"
-		openclaw models set "$model"
-		break_end
+			fi
+
+			# 2. Verify that the input is empty
+			if [ -z "$model" ]; then
+				echo "Error: Model name cannot be empty. Please try again."
+				echo "" # 换行美化
+				continue # 跳过本次循环，重新开始
+			fi
+
+			# 3. Execute switching logic
+			echo "The model being switched is:$model ..."
+			openclaw models set "$model"
+
+			break_end
+		done
+
 	}
 
 
@@ -9914,97 +9957,232 @@ moltbot_menu() {
 	install_plugin() {
 
 		send_stats "Install plugin"
+		while true; do
+			clear
+			echo "========================================"
+			echo "Plug-in management (installation)"
+			echo "========================================"
+			echo "Currently installed plugins:"
+			openclaw plugins list
+			echo "----------------------------------------"
 
-		echo "All plugins"
-		openclaw plugins list
-		# Output a list of recommended practical plug-ins for users to copy
-		echo "Recommended practical plug-ins (you can directly copy the name input):"
-		echo "@openclaw/voice-call # Enable voice call function, support Twilio integration"
-		echo "@openclaw/matrix # Provide message channel integration for the Matrix protocol"
-		echo "@openclaw/nostr # Support message channel of Nostr protocol"
-		echo "@adongguo/openclaw-dingtalk # Integrated DingTalk message channel"
-		echo "@openclaw/msteams # Add Microsoft Teams support"
+			# Output a list of recommended practical plug-ins for users to copy
+			echo "Recommended practical plug-ins (you can directly copy the name input):"
+			echo "feishu # Feishu/Lark integration (currently loaded ✓)"
+			echo "telegram # Telegram bot integration (currently loaded ✓)"
+			echo "memory-core # Core memory enhancement: file-based contextual search (currently loaded ✓)"
+			echo "@openclaw/slack # Deep connections between Slack channels and DMs"
+			echo "@openclaw/bluebubbles # iMessage bridge (preferred for macOS users)"
+			echo "@openclaw/msteams #Microsoft Teams Enterprise Communications Integration"
+			echo "@openclaw/voice-call # Voice call plug-in (based on backends such as Twilio)"
+			echo "@openclaw/discord # Discord channel automatic management"
+			echo "@openclaw/nostr # Nostr protocol: private and secure encrypted chat"
+			echo "lobster # Approval workflow: automated tasks with human intervention"
+			echo "memory-lancedb # Long-term memory enhancement: precise recall based on vector database"
+			echo "copilot-proxy # GitHub Copilot proxy access enhancement"
+			echo "----------------------------------------"
 
-		# Prompt user for plugin name
-		echo -n "Please enter the name of the plug-in to be installed (for example: @xzq-xu/feishu Feishu plug-in) (enter 0 to exit):"
-		read plugin_name
+			# Prompt user for plugin name
+			read -e -p "Please enter the name of the plugin you want to install (enter 0 to exit):" plugin_name
 
-		if [ "$plugin_name" = "0" ]; then
-			echo "The operation has been cancelled."
-			return 0  # 正常退出函数
-		fi
+			# 1. Check if you entered 0 to exit
+			if [ "$plugin_name" = "0" ]; then
+				echo "The operation has been canceled and the plug-in installation has been exited."
+				break
+			fi
 
-		# Verify input is empty
-		if [ -z "$plugin_name" ]; then
-			echo "Error: Plugin name cannot be empty. Please try again."
-			return 1
-		fi
+			# 2. Verify that the input is empty
+			if [ -z "$plugin_name" ]; then
+				echo "Error: The plug-in name cannot be empty, please re-enter it."
+				echo ""
+				continue
+			fi
 
-		# Execute installation command
-		echo "Installing plugin:$plugin_name"
-		openclaw plugins install "$plugin_name"
-		start_tmux
+			# 1. Completely clean up the remnants of previous failures (user directory)
+			rm -rf "/root/.openclaw/extensions/$plugin_name"
 
-		# Check command execution results
-		if [ $? -eq 0 ]; then
-			echo "plug-in$plugin_nameInstallation successful."
-		else
-			echo "Installation failed. Please check that the plugin name is correct, or refer to the OpenClaw documentation to troubleshoot the issue."
-		fi
+			# 2. Check whether the system has been pre-installed (to prevent duplicate ID conflicts)
+			if [ -d "/usr/lib/node_modules/openclaw/extensions/$plugin_name" ]; then
+				echo "💡 It is detected that the plug-in already exists in the system directory and is being activated directly..."
+				openclaw plugins enable "$plugin_name"
+			else
+				echo "📥 Downloading and installing the plug-in through official channels..."
+				# Use openclaw's own install command, which automatically handles spec checking of package.json
+				openclaw plugins install "$plugin_name"
 
-		break_end
+				# 3. If openclaw install reports an error, try installing it as a normal npm package (last alternative)
+				if [ $? -ne 0 ]; then
+					echo "⚠️ The official installation failed, try to force the installation globally through npm..."
+					npm install -g "$plugin_name" --unsafe-perm
+				fi
+
+				# 4. Finally, unified execution and activation
+				openclaw plugins enable "$plugin_name"
+			fi
+
+			start_tmux
+			break_end
+		done
 	}
+
+	install_plugin() {
+		send_stats "Install plugin"
+		while true; do
+			clear
+			echo "========================================"
+			echo "Plug-in management (installation)"
+			echo "========================================"
+			echo "Current plugin list:"
+			openclaw plugins list
+			echo "--------------------------------------------------------"
+			echo "Recommended commonly used plug-in IDs (just copy the ID in brackets):"
+			echo "--------------------------------------------------------"
+			echo "📱 Communication channels:"
+			echo "- [feishu] # Feishu/Lark integration"
+			echo "- [telegram] # Telegram bot"
+			echo "- [slack] #Slack Corporate Communications"
+			echo "  - [msteams]      	# Microsoft Teams"
+			echo "- [discord] # Discord community management"
+			echo "- [whatsapp] #WhatsApp Automation"
+			echo ""
+			echo "🧠 Memory and AI:"
+			echo "- [memory-core] # Basic memory (file retrieval)"
+			echo "- [memory-lancedb] # Enhanced memory (vector database)"
+			echo "- [copilot-proxy] # Copilot interface forwarding"
+			echo ""
+			echo "⚙️ Function expansion:"
+			echo "- [lobster] # Approval flow (with manual confirmation)"
+			echo "- [voice-call] # Voice call capability"
+			echo "- [nostr] # Encrypted private chat"
+			echo "--------------------------------------------------------"
+
+			read -e -p "Please enter the plugin ID (enter 0 to exit):" raw_input
+
+			[ "$raw_input" = "0" ] && break
+			[ -z "$raw_input" ] && continue
+
+			# 1. Automatic processing: If the user input contains @openclaw/, extract the pure ID to facilitate path checking
+			local plugin_id=$(echo "$raw_input" | sed 's|^@openclaw/||')
+			local plugin_full="$raw_input"
+
+			echo "🔍 Checking plugin status..."
+
+			# 2. Check whether it is already in the list and disabled (the most common case)
+			if echo "$plugin_list" | grep -qW "$plugin_id" && echo "$plugin_list" | grep "$plugin_id" | grep -q "disabled"; then
+				echo "💡 Plugin [$plugin_id] Pre-installed, activating..."
+				openclaw plugins enable "$plugin_id" && echo "✅Activation successful" || echo "❌ Activation failed"
+
+			# 3. Check whether the system physical directory exists
+			elif [ -d "/usr/lib/node_modules/openclaw/extensions/$plugin_id" ]; then
+				echo "💡 Found that the plug-in exists in the system's built-in directory, try to enable it directly..."
+				openclaw plugins enable "$plugin_id"
+
+			else
+				# 4. Remote installation logic
+				echo "📥 Not found locally, try to download and install..."
+
+				# Clean up old failed remnants
+				rm -rf "/root/.openclaw/extensions/$plugin_id"
+
+				# Perform the installation and capture the results
+				if openclaw plugins install "$plugin_full"; then
+					echo "✅ Download successful, activating..."
+					openclaw plugins enable "$plugin_id"
+				else
+					echo "⚠️ Download from official channels failed, try alternatives..."
+					# Alternative npm installation
+					if npm install -g "$plugin_full" --unsafe-perm; then
+						echo "✅ npm installed successfully, try to enable..."
+						openclaw plugins enable "$plugin_id"
+					else
+						echo "❌ Fatal error: Unable to obtain the plug-in. Please check if the ID is correct or if the network is available."
+						# Key: Return or continue directly here instead of starting_tmux below to prevent hard-coding the configuration.
+						break_end
+						continue
+					fi
+				fi
+			fi
+
+			echo "🔄 Restarting OpenClaw service to load new plugins..."
+			start_tmux
+			break_end
+		done
+	}
+
+
+
+
+
 
 
 	install_skill() {
 		send_stats "Installation skills"
+		while true; do
+			clear
+			echo "========================================"
+			echo "Skill Management (Installation)"
+			echo "========================================"
+			echo "Currently installed skills:"
+			openclaw skills list
+			echo "----------------------------------------"
 
-		echo "All skills"
-		openclaw skills list
-		# Output a list of recommended practical skills for users to copy
-		echo "Recommended practical skills (you can directly copy the name and enter it):"
-		echo "github-integration #Manage GitHub Issues and Pull Requests, support Webhook"
-		echo "notion-integration # Manipulate Notion database and pages"
-		echo "apple-notes # Manage Apple Notes for macOS/iOS"
-		echo "home-assistant # Control smart home via Home Assistant Hub"
-		echo "agent-browser # Headless browser automation using Playwright"
+			# Output a list of recommended practical skills
+			echo "Recommended practical skills (you can directly copy the name and enter it):"
+			echo "github # Manage GitHub Issues/PR/CI (gh CLI)"
+			echo "notion # Manipulate Notion pages, databases and blocks"
+			echo "apple-notes # macOS native note management (create/edit/search)"
+			echo "apple-reminders # macOS reminder management (to-do list)"
+			echo "1password # Automate reading and injecting 1Password keys"
+			echo "gog # Google Workspace (Gmail/cloud disk/documents) all-round assistant"
+			echo "things-mac # Deep integration of Things 3 task management"
+			echo "bluebubbles # Send and receive iMessages perfectly with BlueBubbles"
+			echo "himalaya # Terminal mail management (IMAP/SMTP powerful tool)"
+			echo "summarize # One-click summary of webpage/podcast/YouTube video content"
+			echo "openhue # Control Philips Hue smart lighting scenes"
+			echo "video-frames # Video frame extraction and short clip editing (ffmpeg driver)"
+			echo "openai-whisper # Convert local audio to text (offline privacy protection)"
+			echo "coding-agent # Automatically run programming assistants such as Claude Code/Codex"
+			echo "----------------------------------------"
 
-		# Prompt user to enter skill name
-		echo -n "Please enter the name of the skill to be installed (for example: github-integration) (enter 0 to exit):"
-		read skill_name
+			# Prompt user to enter skill name
+			read -e -p "Please enter the name of the skill to be installed (enter 0 to exit):" skill_name
 
-		if [ "$skill_name" = "0" ]; then
-			echo "The operation has been cancelled."
-			return 0  # 正常退出函数
-		fi
+			# 1. Check if you entered 0 to exit
+			if [ "$skill_name" = "0" ]; then
+				echo "The operation has been canceled and the skill installation has been exited."
+				break
+			fi
 
-		# Verify input is empty
-		if [ -z "$skill_name" ]; then
-			echo "Error: Skill name cannot be empty. Please try again."
-			return 1
-		fi
+			# 2. Verify that the input is empty
+			if [ -z "$skill_name" ]; then
+				echo "Error: Skill name cannot be empty. Please try again."
+				echo ""
+				continue
+			fi
 
-		# Execute installation command
-		echo "Installing skills:$skill_name"
-		openclaw skills install "$skill_name"
-		start_tmux
+			# 3. Execute the installation command
+			echo "Installing skills:$skill_name ..."
+			npx clawhub install "$skill_name"
 
-		# Check command execution results
-		if [ $? -eq 0 ]; then
-			echo "Skill$skill_nameInstallation successful."
-		else
-			echo "Installation failed. Please check that the skill name is correct, or refer to the OpenClaw documentation to troubleshoot the issue."
-		fi
+			# Get the exit status of the previous command
+			if [ $? -eq 0 ]; then
+				echo "✅ Skills$skill_nameInstallation successful."
+				# Execute restart/start service logic
+				start_tmux
+			else
+				echo "❌ Installation failed. Please check whether the skill name is correct, or refer to the documentation for troubleshooting."
+			fi
 
-		break_end
+			break_end
+		done
+
 	}
 
 
 
 	change_tg_bot_code() {
 		send_stats "Robot docking"
-		printf "Please enter the connection code received by the TG robot (for example, Pairing code: NYA99R2F) (enter 0 to exit):"
-		read code
+		read -e -p "Please enter the connection code received by the TG robot (for example, Pairing code: NYA99R2F) (enter 0 to exit):" code
 
 		# Check if 0 is entered to exit
 		if [ "$code" = "0" ]; then
@@ -10021,6 +10199,7 @@ moltbot_menu() {
 		openclaw pairing approve telegram $code
 		break_end
 	}
+
 
 	update_moltbot() {
 		echo "Update OpenClaw..."
@@ -10046,6 +10225,138 @@ moltbot_menu() {
 		break_end
 	}
 
+	nano_openclaw_json() {
+		send_stats "Edit the OpenClaw configuration file"
+		install nano
+		nano ~/.openclaw/openclaw.json
+		start_tmux
+	}
+
+
+
+
+
+
+	openclaw_find_webui_domain() {
+		local conf domain_list
+
+		domain_list=$(
+			grep -R "18789" /home/web/conf.d/*.conf 2>/dev/null \
+			| awk -F: '{print $1}' \
+			| sort -u \
+			| while read conf; do
+				basename "$conf" .conf
+			done
+		)
+
+		if [ -n "$domain_list" ]; then
+			echo "$domain_list"
+		fi
+	}
+
+
+
+	openclaw_show_webui_addr() {
+		local local_ip token domains
+
+		echo "=================================="
+		echo "OpenClaw WebUI access address"
+		local_ip="127.0.0.1"
+
+		token=$(
+			openclaw dashboard 2>/dev/null \
+			| sed -n 's/.*:18789\/?token=\([a-f0-9]\+\).*/\1/p' \
+			| head -n 1
+		)
+		echo
+		echo "Local address:"
+		echo "http://${local_ip}:18789/?token=${token}"
+
+		domains=$(openclaw_find_webui_domain)
+		if [ -n "$domains" ]; then
+			echo "Domain name address:"
+			echo "$domains" | while read d; do
+				echo "https://${d}/?token=${token}"
+			done
+		fi
+
+		echo "=================================="
+	}
+
+
+
+	# Add a domain name (call the function you gave)
+	openclaw_domain_webui() {
+		add_yuming
+		ldnmp_Proxy ${yuming} 127.0.0.1 18789
+
+		token=$(
+			openclaw dashboard 2>/dev/null \
+			| sed -n 's/.*:18789\/?token=\([a-f0-9]\+\).*/\1/p' \
+			| head -n 1
+		)
+
+		clear
+		echo "Visit address:"
+		echo "https://${yuming}/?token=$token"
+		echo "First access the URL to trigger the device ID, then press Enter to proceed with pairing."
+		read
+		echo -e "${gl_kjlan}Loading device list...${gl_bai}"
+		openclaw devices list
+
+		read -e -p "Please enter Request_Key:" Request_Key
+
+		[ -z "$Request_Key" ] && {
+			echo "Request_Key cannot be empty"
+			return 1
+		}
+
+		openclaw devices approve "$Request_Key"
+
+	}
+
+	# Delete domain name
+	openclaw_remove_domain() {
+		echo "Domain name format example.com without https://"
+		web_del
+	}
+
+	# Main menu
+	openclaw_webui_menu() {
+
+		send_stats "WebUI access and settings"
+		while true; do
+			clear
+			openclaw_show_webui_addr
+			echo
+			echo "1. Add domain name access"
+			echo "2. Delete domain name access"
+			echo "0. Exit"
+			echo
+			read -e -p "Please select:" choice
+
+			case "$choice" in
+				1)
+					openclaw_domain_webui
+					echo
+					read -p "Press Enter to return to the menu..."
+					;;
+				2)
+					openclaw_remove_domain
+					read -p "Press Enter to return to the menu..."
+					;;
+				0)
+					break
+					;;
+				*)
+					echo "Invalid option"
+					sleep 1
+					;;
+			esac
+		done
+	}
+
+
 
 	# main loop
 	while true; do
@@ -10061,13 +10372,18 @@ moltbot_menu() {
 			7) change_tg_bot_code ;;
 			8) install_plugin ;;
 			9) install_skill ;;
-			10)
-				send_stats "Edit the OpenClaw configuration file"
-				install nano
-				nano ~/.openclaw/openclaw.json
+			10) nano_openclaw_json ;;
+			11) send_stats "Initial configuration wizard"
+				openclaw onboard --install-daemon
+				break_end
 				;;
-			11) update_moltbot ;;
-			12) uninstall_moltbot ;;
+			12) send_stats "Health detection and repair"
+				openclaw doctor --fix
+				break_end
+			 	;;
+			13) openclaw_webui_menu ;;
+			14) update_moltbot ;;
+			15) uninstall_moltbot ;;
 			*) break ;;
 		esac
 	done
@@ -10113,7 +10429,7 @@ while true; do
 
 	  echo -e "${gl_kjlan}1.   ${color1}Pagoda panel official version${gl_kjlan}2.   ${color2}aaPanel Pagoda International Version"
 	  echo -e "${gl_kjlan}3.   ${color3}1Panel new generation management panel${gl_kjlan}4.   ${color4}NginxProxyManager visualization panel"
-	  echo -e "${gl_kjlan}5.   ${color5}OpenList multi-store file list program${gl_kjlan}6.   ${color6}Ubuntu Remote Desktop Web Edition"
+	  echo -e "${gl_kjlan}5.   ${color5}OpenList multi-store file list program${gl_kjlan}6.   ${color6}Ubuntu Remote Desktop Web Version"
 	  echo -e "${gl_kjlan}7.   ${color7}Nezha Probe VPS Monitoring Panel${gl_kjlan}8.   ${color8}QB offline BT magnetic download panel"
 	  echo -e "${gl_kjlan}9.   ${color9}Poste.io mail server program${gl_kjlan}10.  ${color10}RocketChat multi-person online chat system"
 	  echo -e "${gl_kjlan}-------------------------"
@@ -10587,7 +10903,7 @@ while true; do
 					rm -rf /home/docker/mail
 
 					sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-					echo "App has been uninstalled"
+					echo "App uninstalled"
 					;;
 
 				*)
@@ -10641,7 +10957,7 @@ while true; do
 			docker rm -f db
 			docker rmi -f mongo:latest
 			rm -rf /home/docker/mongo
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -10739,7 +11055,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/cloud/ && docker compose down --rmi all
 			rm -rf /home/docker/cloud
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -11625,7 +11941,7 @@ while true; do
 			docker rmi -f grafana/grafana:latest
 
 			rm -rf /home/docker/monitoring
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -11852,7 +12168,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/dify/docker/ && docker compose down --rmi all
 			rm -rf /home/docker/dify
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -11904,7 +12220,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/new-api/ && docker compose down --rmi all
 			rm -rf /home/docker/new-api
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -11945,7 +12261,7 @@ while true; do
 			cd /opt
 			rm -rf jumpserver-installer*/
 			rm -rf jumpserver
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -12008,7 +12324,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/ragflow/docker/ && docker compose down --rmi all
 			rm -rf /home/docker/ragflow
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -12222,7 +12538,7 @@ while true; do
 
 		}
 
-		local docker_describe="Is a lightweight, high-performance music streaming server"
+		local docker_describe="It is a lightweight, high-performance music streaming server"
 		local docker_url="Official website introduction: https://www.navidrome.org/"
 		local docker_use=""
 		local docker_passwd=""
@@ -12249,7 +12565,7 @@ while true; do
 
 		}
 
-		local docker_describe="A password manager that puts you in control of your data"
+		local docker_describe="A password manager where you can control your data"
 		local docker_url="Official website introduction: https://bitwarden.com/"
 		local docker_use=""
 		local docker_passwd=""
@@ -12336,7 +12652,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/moontv/ && docker compose down --rmi all
 			rm -rf /home/docker/moontv
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -12557,7 +12873,7 @@ while true; do
 		  docker_app_uninstall() {
 			  cd /home/docker/linkwarden && docker compose down --rmi all
 			  rm -rf /home/docker/linkwarden
-			  echo "App has been uninstalled"
+			  echo "App uninstalled"
 		  }
 
 		  docker_app_plus
@@ -12607,7 +12923,7 @@ while true; do
 			  cd "$(ls -dt */ | head -n 1)"
 			  docker compose down --rmi all
 			  rm -rf /home/docker/jitsi
-			  echo "App has been uninstalled"
+			  echo "App uninstalled"
 		  }
 
 		  docker_app_plus
@@ -12743,7 +13059,7 @@ while true; do
 		  docker_app_uninstall() {
 			  cd /home/docker/${docker_name} && docker compose down --rmi all
 			  rm -rf /home/docker/${docker_name}
-			  echo "App has been uninstalled"
+			  echo "App uninstalled"
 		  }
 
 		  docker_app_plus
@@ -12806,7 +13122,7 @@ while true; do
 
 		}
 
-		local docker_describe="A program to watch movies and live broadcasts together remotely. It provides simultaneous viewing, live broadcast, chat and other functions"
+		local docker_describe="A program for watching movies and live broadcasts together remotely. It provides simultaneous viewing, live broadcast, chat and other functions"
 		local docker_url="Official website introduction:${gh_https_url}github.com/synctv-org/synctv"
 		local docker_use="echo \"Initial account and password: root. Please change the login password in time after logging in\""
 		local docker_passwd=""
@@ -12970,7 +13286,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/gitea/ && docker compose down --rmi all
 			rm -rf /home/docker/gitea
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -13058,7 +13374,7 @@ while true; do
 
 		}
 
-		local docker_describe="Distributed high-speed download tool, supporting multiple protocols"
+		local docker_describe="分布式高速下载工具，支持多种协议"
 		local docker_url="Official website introduction:${gh_https_url}github.com/GopeedLab/gopeed"
 		local docker_use=""
 		local docker_passwd=""
@@ -13108,7 +13424,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/paperless/ && docker compose down --rmi all
 			rm -rf /home/docker/paperless
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -13162,7 +13478,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/2fauth/ && docker compose down --rmi all
 			rm -rf /home/docker/2fauth
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -13395,7 +13711,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/dsm/ && docker compose down --rmi all
 			rm -rf /home/docker/dsm
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -13437,7 +13753,7 @@ while true; do
 	  101|moneyprinterturbo)
 		local app_id="101"
 		local app_name="AI video generation tool"
-		local app_text="MoneyPrinterTurbo is a tool that uses AI large models to synthesize high-definition short videos"
+		local app_text="MoneyPrinterTurbo is a tool that uses AI large models to synthesize high-definition short videos."
 		local app_url="Official website:${gh_https_url}github.com/harry0703/MoneyPrinterTurbo"
 		local docker_name="moneyprinterturbo"
 		local docker_port="8101"
@@ -13466,7 +13782,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/MoneyPrinterTurbo/ && docker compose down --rmi all
 			rm -rf /home/docker/MoneyPrinterTurbo
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -13535,7 +13851,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/umami/ && docker compose down --rmi all
 			rm -rf /home/docker/umami
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -13676,7 +13992,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 		docker_app_uninstall() {
 			cd  /home/docker/LangBot/docker/ && docker compose down --rmi all
 			rm -rf /home/docker/LangBot
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -13746,7 +14062,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 		docker_app_uninstall() {
 			cd  /home/docker/karakeep/docker/ && docker compose down --rmi all
 			rm -rf /home/docker/karakeep
-			echo "App has been uninstalled"
+			echo "App uninstalled"
 		}
 
 		docker_app_plus
@@ -13833,7 +14149,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 				${docker_img}
 		}
 
-		local docker_describe="It is a Firefox browser running in Docker that supports direct access to the desktop browser interface through the web page."
+		local docker_describe="It is a Firefox browser running in Docker that supports direct access to the desktop browser interface through web pages."
 		local docker_url="Project address:${gh_https_url}github.com/jlesage/docker-firefox"
 		local docker_use=""
 		local docker_passwd=""
@@ -13892,7 +14208,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 	  r)
 	  	root_use
 	  	send_stats "Restore all apps"
-	  	echo "Available application backups"
+	  	echo "Available app backups"
 	  	echo "-------------------------"
 	  	ls -lt /app*.gz | awk '{print $NF}'
 	  	echo ""
@@ -13954,7 +14270,7 @@ linux_work() {
 	  send_stats "Backend workspace"
 	  echo -e "Backend workspace"
 	  echo -e "The system will provide you with a workspace that can run permanently in the background, which you can use to perform long-term tasks."
-	  echo -e "Even if you disconnect SSH, the tasks in the workspace will not be interrupted, and the tasks will remain in the background."
+	  echo -e "Even if you disconnect SSH, the tasks in the workspace will not be interrupted, and the background tasks will persist."
 	  echo -e "${gl_huang}hint:${gl_bai}After entering the workspace, use Ctrl+b and then press d alone to exit the workspace!"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo "List of currently existing workspaces"
@@ -13970,7 +14286,7 @@ linux_work() {
 	  echo -e "${gl_kjlan}7.   ${gl_bai}Work Area 7"
 	  echo -e "${gl_kjlan}8.   ${gl_bai}Work Area 8"
 	  echo -e "${gl_kjlan}9.   ${gl_bai}Workspace No. 9"
-	  echo -e "${gl_kjlan}10.  ${gl_bai}Workspace 10"
+	  echo -e "${gl_kjlan}10.  ${gl_bai}Workspace No. 10"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}21.  ${gl_bai}SSH resident mode${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}22.  ${gl_bai}Create/enter workspace"
@@ -14269,32 +14585,32 @@ net_menu() {
 		echo "4. Refresh network card information"
 		echo "0. Return to the previous menu"
 		echo "===================================="
-		read -rp "Please select an action:" choice
+		read -erp "Please select an action:" choice
 
 		case $choice in
 			1)
 				send_stats "Enable network card"
-				read -rp "Please enter the name of the network card to be enabled:" nic
+				read -erp "Please enter the name of the network card to be enabled:" nic
 				if ip link show "$nic" &>/dev/null; then
 					ip link set "$nic" up && echo "✔ Network card$nicEnabled"
 				else
 					echo "✘ The network card does not exist"
 				fi
-				read -rp "Press Enter to continue..."
+				read -erp "Press Enter to continue..."
 				;;
 			2)
 				send_stats "Disable network card"
-				read -rp "Please enter the name of the network card to be disabled:" nic
+				read -erp "Please enter the name of the network card to be disabled:" nic
 				if ip link show "$nic" &>/dev/null; then
 					ip link set "$nic" down && echo "✔ Network card$nicDisabled"
 				else
 					echo "✘ The network card does not exist"
 				fi
-				read -rp "Press Enter to continue..."
+				read -erp "Press Enter to continue..."
 				;;
 			3)
 				send_stats "View network card details"
-				read -rp "Please enter the name of the network card you want to view:" nic
+				read -erp "Please enter the name of the network card you want to view:" nic
 				if ip link show "$nic" &>/dev/null; then
 					echo "========== $nicDetails =========="
 					ip addr show "$nic"
@@ -14302,7 +14618,7 @@ net_menu() {
 				else
 					echo "✘ The network card does not exist"
 				fi
-				read -rp "Press Enter to continue..."
+				read -erp "Press Enter to continue..."
 				;;
 			4)
 				send_stats "Refresh network card information"
@@ -14338,32 +14654,32 @@ log_menu() {
 		show_log_overview
 		echo
 		echo "=========== System log management menu ==========="
-		echo "1. View the latest system log (journal)"
+		echo "1. Check the latest system log (journal)"
 		echo "2. View the specified service log"
 		echo "3. View login/security logs"
 		echo "4. Real-time tracking logs"
 		echo "5. Clean up old journal logs"
 		echo "0. Return to the previous menu"
 		echo "======================================="
-		read -rp "Please select an action:" choice
+		read -erp "Please select an action:" choice
 
 		case $choice in
 			1)
 				send_stats "View recent logs"
-				read -rp "View the most recent log lines? [Default 100]:" lines
+				read -erp "View the most recent log lines? [Default 100]:" lines
 				lines=${lines:-100}
 				journalctl -n "$lines" --no-pager
-				read -rp "Press Enter to continue..."
+				read -erp "Press Enter to continue..."
 				;;
 			2)
 				send_stats "View specified service logs"
-				read -rp "Please enter the service name (such as sshd, nginx):" svc
+				read -erp "Please enter the service name (such as sshd, nginx):" svc
 				if systemctl list-unit-files | grep -q "^$svc"; then
 					journalctl -u "$svc" -n 100 --no-pager
 				else
 					echo "✘ The service does not exist or has no logs"
 				fi
-				read -rp "Press Enter to continue..."
+				read -erp "Press Enter to continue..."
 				;;
 			3)
 				send_stats "View login/security logs"
@@ -14378,17 +14694,17 @@ log_menu() {
 				else
 					echo "Security log file not found"
 				fi
-				read -rp "Press Enter to continue..."
+				read -erp "Press Enter to continue..."
 				;;
 			4)
 				send_stats "Real-time tracking log"
 				echo "1) System log"
 				echo "2) Specify service log"
-				read -rp "Select tracking type:" t
+				read -erp "Select tracking type:" t
 				if [ "$t" = "1" ]; then
 					journalctl -f
 				elif [ "$t" = "2" ]; then
-					read -rp "Enter service name:" svc
+					read -erp "Enter service name:" svc
 					journalctl -u "$svc" -f
 				else
 					echo "Invalid selection"
@@ -14400,7 +14716,7 @@ log_menu() {
 				echo "1) Keep the last 7 days"
 				echo "2) Keep the last 3 days"
 				echo "3) Limit the maximum log size to 500M"
-				read -rp "Please select a cleaning method:" c
+				read -erp "Please select a cleaning method:" c
 				case $c in
 					1) journalctl --vacuum-time=7d ;;
 					2) journalctl --vacuum-time=3d ;;
@@ -14428,7 +14744,7 @@ env_menu() {
 
 	show_env_vars() {
 		clear
-		send_stats "Currently in effect environment variables"
+		send_stats "Environment variables currently in effect"
 		echo "========== Currently in effect environment variables (excerpt) =========="
 		printf "%-20s %s\n" "variable name" "value"
 		echo "-----------------------------------------------"
@@ -14466,7 +14782,7 @@ env_menu() {
 
 		echo
 		echo "==============================================="
-		read -rp "Press Enter to continue..."
+		read -erp "Press Enter to continue..."
 	}
 
 
@@ -14481,7 +14797,7 @@ env_menu() {
 		else
 			echo "File does not exist:$file"
 		fi
-		read -rp "Press Enter to continue..."
+		read -erp "Press Enter to continue..."
 	}
 
 	edit_file() {
@@ -14497,7 +14813,7 @@ env_menu() {
 		source "$BASHRC"
 		source "$PROFILE"
 		echo "✔ Environment variables have been reloaded"
-		read -rp "Press Enter to continue..."
+		read -erp "Press Enter to continue..."
 	}
 
 	while true; do
@@ -14514,7 +14830,7 @@ env_menu() {
 		echo "--------------------------------------"
 		echo "0. Return to the previous menu"
 		echo "--------------------------------------"
-		read -rp "Please select an action:" choice
+		read -erp "Please select an action:" choice
 
 		case "$choice" in
 			1)
@@ -14695,7 +15011,7 @@ linux_Settings() {
 			echo "python version management"
 			echo "Video introduction: https://www.bilibili.com/video/BV1Pm42157cK?t=0.1"
 			echo "---------------------------------------"
-			echo "This function can seamlessly install any version officially supported by Python!"
+			echo "This function can seamlessly install any version officially supported by python!"
 			local VERSION=$(python3 -V 2>&1 | awk '{print $2}')
 			echo -e "Current python version number:${gl_huang}$VERSION${gl_bai}"
 			echo "------------"
@@ -14787,7 +15103,7 @@ EOF
 
 			while true; do
 				clear
-				sed -i 's/#Port/Port/' /etc/ssh/sshd_config
+				sed -i 's/^\s*#\?\s*Port/Port/' /etc/ssh/sshd_config
 
 				# Read the current SSH port number
 				local current_port=$(grep -E '^ *Port [0-9]+' /etc/ssh/sshd_config | awk '{print $2}')
@@ -14805,7 +15121,7 @@ EOF
 				if [[ $new_port =~ ^[0-9]+$ ]]; then  # 检查输入是否为数字
 					if [[ $new_port -ge 1 && $new_port -le 65535 ]]; then
 						send_stats "SSH port has been modified"
-						new_ssh_port
+						new_ssh_port $new_port
 					elif [[ $new_port -eq 0 ]]; then
 						send_stats "Exit SSH port modification"
 						break
@@ -14881,8 +15197,8 @@ EOF
 						;;
 					2)
 						rm -f /etc/gai.conf
-						echo "Switched to IPv6 priority"
-						send_stats "Switched to IPv6 priority"
+						echo "Switched to IPv6 first"
+						send_stats "Switched to IPv6 first"
 						;;
 
 					3)
@@ -15114,7 +15430,7 @@ EOF
 				echo "America"
 				echo "21. US Western Time 22. US Eastern Time"
 				echo "23. Canada time 24. Mexico time"
-				echo "25. Brazil time 26. Argentina time"
+				echo "25. Brazil Time 26. Argentina Time"
 				echo "------------------------"
 				echo "31. UTC global standard time"
 				echo "------------------------"
@@ -15372,7 +15688,7 @@ EOF
 					echo -e "${gl_lv}The currently set inbound traffic limit threshold is:${gl_huang}${rx_threshold_gb}${gl_lv}G${gl_bai}"
 					echo -e "${gl_lv}The currently set outbound traffic limiting threshold is:${gl_huang}${tx_threshold_gb}${gl_lv}GB${gl_bai}"
 				else
-					echo -e "${gl_hui}The current limiting shutdown function is not currently enabled${gl_bai}"
+					echo -e "${gl_hui}Current limiting shutdown function is not currently enabled${gl_bai}"
 				fi
 
 				echo
@@ -15593,7 +15909,7 @@ EOF
 			  echo -e "7. Turn on${gl_huang}BBR${gl_bai}accelerate"
 			  echo -e "8. Set time zone to${gl_huang}Shanghai${gl_bai}"
 			  echo -e "9. Automatically optimize DNS addresses${gl_huang}Overseas: 1.1.1.1 8.8.8.8 Domestic: 223.5.5.5${gl_bai}"
-		  	  echo -e "10. Set the network to${gl_huang}IPv4 priority${gl_bai}"
+		  	  echo -e "10. Set the network to${gl_huang}ipv4 priority${gl_bai}"
 			  echo -e "11. Install basic tools${gl_huang}docker wget sudo tar unzip socat btop nano vim${gl_bai}"
 			  echo -e "12. Linux system kernel parameter optimization switches to${gl_huang}Balanced optimization mode${gl_bai}"
 			  echo "------------------------------------------------"
@@ -15617,8 +15933,7 @@ EOF
 				  echo -e "[${gl_lv}OK${gl_bai}] 3/12. Set up virtual memory${gl_huang}1G${gl_bai}"
 
 				  echo "------------------------------------------------"
-				  local new_port=5522
-				  new_ssh_port
+				  new_ssh_port 5522
 				  echo -e "[${gl_lv}OK${gl_bai}] 4/12. Set the SSH port number to${gl_huang}5522${gl_bai}"
 				  echo "------------------------------------------------"
 				  f2b_install_sshd
@@ -15642,7 +15957,7 @@ EOF
 				  echo -e "[${gl_lv}OK${gl_bai}] 9/12. Automatically optimize DNS address${gl_huang}${gl_bai}"
 				  echo "------------------------------------------------"
 				  prefer_ipv4
-				  echo -e "[${gl_lv}OK${gl_bai}] 10/12. Set the network to${gl_huang}IPv4 priority${gl_bai}}"
+				  echo -e "[${gl_lv}OK${gl_bai}] 10/12. Set the network to${gl_huang}ipv4 priority${gl_bai}}"
 
 				  echo "------------------------------------------------"
 				  install_docker
@@ -16004,7 +16319,7 @@ run_commands_on_servers() {
 		local username=${SERVER_ARRAY[i+3]}
 		local password=${SERVER_ARRAY[i+4]}
 		echo
-		echo -e "${gl_huang}Connect to$name ($hostname)...${gl_bai}"
+		echo -e "${gl_huang}connect to$name ($hostname)...${gl_bai}"
 		# sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
 		sshpass -p "$password" ssh -t -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
 	done
@@ -16038,7 +16353,7 @@ while true; do
 	  echo -e "${gl_kjlan}Execute tasks in batches${gl_bai}"
 	  echo -e "${gl_kjlan}11. ${gl_bai}Install technology lion script${gl_kjlan}12. ${gl_bai}Update system${gl_kjlan}13. ${gl_bai}Clean the system"
 	  echo -e "${gl_kjlan}14. ${gl_bai}Install docker${gl_kjlan}15. ${gl_bai}Install BBR3${gl_kjlan}16. ${gl_bai}Set 1G virtual memory"
-	  echo -e "${gl_kjlan}17. ${gl_bai}Set time zone to Shanghai${gl_kjlan}18. ${gl_bai}Open all ports${gl_kjlan}51. ${gl_bai}Custom instructions"
+	  echo -e "${gl_kjlan}17. ${gl_bai}Set time zone to Shanghai${gl_kjlan}18. ${gl_bai}Open all ports${gl_kjlan}51. ${gl_bai}custom directive"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  echo -e "${gl_kjlan}0.  ${gl_bai}Return to main menu"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -16146,7 +16461,7 @@ echo "------------------------"
 echo -e "${gl_zi}Hostinger $52.7 per year United States 1 core 4G memory 50G hard drive 4T traffic per month${gl_bai}"
 echo -e "${gl_bai}URL: https://cart.hostinger.com/pay/d83c51e9-0c28-47a6-8414-b8ab010ef94f?_ga=GA1.3.942352702.1711283207${gl_bai}"
 echo "------------------------"
-echo -e "${gl_huang}Bricklayer 49 dollars per quarter US CN2GIA Japan SoftBank 2 cores 1G memory 20G hard drive 1T traffic per month${gl_bai}"
+echo -e "${gl_huang}Bricklayer 49 dollars per quarter US CN2GIA Japan Softbank 2 cores 1G memory 20G hard drive 1T traffic per month${gl_bai}"
 echo -e "${gl_bai}Website: https://bandwagonhost.com/aff.php?aff=69004&pid=87${gl_bai}"
 echo "------------------------"
 echo -e "${gl_lan}DMIT $28 per quarter US CN2GIA 1 core 2G memory 20G hard drive 800G traffic per month${gl_bai}"
@@ -16155,7 +16470,7 @@ echo "------------------------"
 echo -e "${gl_zi}V.PS 6.9 dollars per month Tokyo Softbank 2 cores 1G memory 20G hard drive 1T traffic per month${gl_bai}"
 echo -e "${gl_bai}URL: https://vps.hosting/cart/tokyo-cloud-kvm-vps/?id=148&?affid=1355&?affid=1355${gl_bai}"
 echo "------------------------"
-echo -e "${gl_kjlan}More popular VPS deals${gl_bai}"
+echo -e "${gl_kjlan}More popular VPS offers${gl_bai}"
 echo -e "${gl_bai}Website: https://kejilion.pro/topvps/${gl_bai}"
 echo "------------------------"
 echo ""
@@ -16361,7 +16676,7 @@ echo -e "${gl_kjlan}16.  ${gl_bai}Collection of game server opening scripts"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}Script update"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}0.   ${gl_bai}Exit script"
+echo -e "${gl_kjlan}0.   ${gl_bai}exit script"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 read -e -p "Please enter your choice:" choice
 
@@ -16394,7 +16709,7 @@ done
 
 
 k_info() {
-send_stats "k command reference examples"
+send_stats "k command reference use case"
 echo "-------------------"
 echo "Video introduction: https://www.bilibili.com/video/BV1ib421E7it?t=0.1"
 echo "The following is a reference use case for the k command:"
@@ -16599,12 +16914,12 @@ else
 			;;
 		stop|停止)
 			shift
-			send_stats "software pause"
+			send_stats "Software paused"
 			stop "$@"
 			;;
 		restart|重启)
 			shift
-			send_stats "Software restart"
+			send_stats "software restart"
 			restart "$@"
 			;;
 
