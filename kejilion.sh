@@ -9755,6 +9755,9 @@ moltbot_menu() {
 
 
 
+
+
+
 	add-openclaw-provider() {
 		local config_file="${HOME}/.openclaw/openclaw.json"
 		local provider_name="$1"
@@ -9835,6 +9838,7 @@ moltbot_menu() {
 		fi
 	}
 
+
 	# 可选：自动设置默认并重启
 	add-openclaw-provider-and-switch() {
 		install jq
@@ -9852,64 +9856,106 @@ moltbot_menu() {
 
 
 
-
-
 	add-openclaw-provider-interactive() {
-		send_stats "添加API"
-		echo "=== 交互式添加 OpenClaw Provider ==="
+	  send_stats "添加API"
+	  echo "=== 交互式添加 OpenClaw Provider ==="
 
-		# Provider 名称
-		read -erp "请输入 Provider 名称 (如: deepseek): " provider_name
-		while [[ -z "$provider_name" ]]; do
-			echo "❌ Provider 名称不能为空"
-			read -erp "请输入 Provider 名称: " provider_name
-		done
+	  # 1. Provider 名称
+	  read -erp "请输入 Provider 名称 (如: deepseek): " provider_name
+	  while [[ -z "$provider_name" ]]; do
+		echo "❌ Provider 名称不能为空"
+		read -erp "请输入 Provider 名称: " provider_name
+	  done
 
-		# Model ID
-		read -erp "请输入 Model ID (如: deepseek-chat): " model_id
-		while [[ -z "$model_id" ]]; do
-			echo "❌ Model ID 不能为空"
-			read -erp "请输入 Model ID: " model_id
-		done
+	  # 2. Base URL
+	  read -erp "请输入 Base URL (如: https://api.xxx.com/v1): " base_url
+	  while [[ -z "$base_url" ]]; do
+		echo "❌ Base URL 不能为空"
+		read -erp "请输入 Base URL: " base_url
+	  done
+	  # 自动处理结尾的 /
+	  base_url="${base_url%/}"
 
-		# Base URL
-		read -erp "请输入 Base URL (如: https://api.xxx.com/v1): " base_url
-		while [[ -z "$base_url" ]]; do
-			echo "❌ Base URL 不能为空"
-			read -erp "请输入 Base URL: " base_url
-		done
-
-		# API Key（隐藏输入）
-		read -rsp "请输入 API Key (输入不显示): " api_key
+	  # 3. API Key
+	  read -rsp "请输入 API Key (输入不显示): " api_key
+	  echo
+	  while [[ -z "$api_key" ]]; do
+		echo "❌ API Key 不能为空"
+		read -rsp "请输入 API Key: " api_key
 		echo
-		while [[ -z "$api_key" ]]; do
-			echo "❌ API Key 不能为空"
-			read -rsp "请输入 API Key: " api_key
-			echo
-		done
+	  done
 
-		echo
-		echo "====== 确认信息 ======"
-		echo "Provider : $provider_name"
-		echo "Model ID : $model_id"
-		echo "Base URL : $base_url"
-		echo "API Key  : ${api_key:0:8}****"
-		echo "======================"
+	  # --- ✨ 新增逻辑：自动获取模型列表 ---
+	  echo "🔍 正在尝试获取可用模型列表..."
 
-		read -erp "确认添加？(y/N): " confirm
-		if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-			echo "❎ 已取消"
-			return 1
+	  # 尝试请求 /models 端点
+	  models_json=$(curl -s -m 10 \
+		-H "Authorization: Bearer $api_key" \
+		"${base_url}/models")
+
+	  # 简单的正则提取模型 ID (兼容性好，无需 jq)
+	  if [[ -n "$models_json" ]]; then
+		# 提取 "id": "xxx" 格式的字符串
+		available_models=$(echo "$models_json" | grep -oP '"id":\s*"\K[^"]+' | sort)
+
+		if [[ -n "$available_models" ]]; then
+		  echo "✅ 发现以下可用模型："
+		  echo "--------------------------------"
+		  i=1
+		  declare -A model_map
+		  while read -r model; do
+			echo "[$i] $model"
+			model_map[$i]="$model"
+			((i++))
+		  done <<< "$available_models"
+		  echo "--------------------------------"
+		  echo "💡 你可以输入序号选择，也可以直接输入模型 ID"
+		else
+		  echo "⚠️ 未能解析出模型列表 (可能是格式不兼容)，请手动输入。"
 		fi
+	  else
+		echo "⚠️ 连接 API 失败，请检查 URL 或网络。"
+	  fi
+	  # -------------------------------------
 
-		echo
-		add-openclaw-provider-and-switch \
-			"$provider_name" \
-			"$model_id" \
-			"$base_url" \
-			"$api_key"
+	  # 4. Model ID
+	  read -erp "请输入 Model ID (或序号): " input_model
 
-		break_end
+	  # 检查是否输入了序号
+	  if [[ -n "${model_map[$input_model]}" ]]; then
+		model_id="${model_map[$input_model]}"
+		echo "🎯 已选择模型: $model_id"
+	  else
+		model_id="$input_model"
+	  fi
+
+	  while [[ -z "$model_id" ]]; do
+		echo "❌ Model ID 不能为空"
+		read -erp "请输入 Model ID: " model_id
+	  done
+
+	  echo
+	  echo "====== 确认信息 ======"
+	  echo "Provider : $provider_name"
+	  echo "Base URL : $base_url"
+	  echo "API Key  : ${api_key:0:8}****"
+	  echo "Model ID : $model_id"
+	  echo "======================"
+
+	  read -erp "确认添加？(y/N): " confirm
+	  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+		echo "❎ 已取消"
+		return 1
+	  fi
+
+	  echo
+	  add-openclaw-provider-and-switch \
+		"$provider_name" \
+		"$model_id" \
+		"$base_url" \
+		"$api_key"
+
+	  break_end
 	}
 
 
